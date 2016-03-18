@@ -79,11 +79,17 @@ Cassia Hub使用Thrift进行通讯,Apache Thrift 是 Facebook 实现的一种高
 
 1. 下载thrift, http://thrift.apache.org/download
 2. 编译并安装thrift
-  `./configure && make`
-  注:如果是windows环境,直接下载thrift官网的exe文件即可:Thrift compiler for Windows
+  
+  ```./configure && make```
+ 
+  注:如果是windows环境,可跳过此步
 3. 将文档中的thrift文件保存为Cassia.thrift,生成对应语言的代码,
-  `thrift --gen java Cassia.thrift`
-命令将会把代码生成到当前目录的gen-java目录下
+  
+  `thrift --gen java cassia.thrift`
+  
+  注,window用户,从命令行进入项目目录,输入`thrift-0.9.3.exe --gen java cassia.thrift`
+
+  命令将会把代码生成到当前目录的gen-java目录下
 4. 将thrift对应语言的库和生成的代码导入,在thrift-0.9.3/lib 中
 5. 建立thrift client,使用ControlService,连接到CassiaHub
 
