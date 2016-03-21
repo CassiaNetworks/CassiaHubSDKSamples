@@ -162,6 +162,7 @@ var ip = "172.16.30.106";
 var local = "192.168.10.23";
 var port = 9997;
 //连接CassiaHub
+var address = 'xx:xx:xx:xx';
 var connection = thrift.createConnection(ip, 9090, {
   transport : transport,
   protocol : protocol
@@ -179,7 +180,7 @@ connection.on('error', function(err) {
 
 var client = thrift.createClient(Controller, connection);
 var server = thrift.createServer(Notifier, {
-  userChallenge: function(session, result) {
+  userChallenge: function(result) {
     //返回用户认证信息
     console.log("user challenge()");
     var info = new AuthInfo();
@@ -188,7 +189,7 @@ var server = thrift.createServer(Notifier, {
     info.secret = "234";
     result(null, info);
   },
-  onConnectionStateChange : function(session, chipId, deviceId, status) {
+  onConnectionStateChange : function(chipId, deviceId, status) {
     console.log('connect state change', chipId, deviceId, status);
     if (status == 1) {
       client.discoverServices(deviceId, function(err, response) {
@@ -199,7 +200,7 @@ var server = thrift.createServer(Notifier, {
       });
     }
   },
-  onScan : function(session, chipId, device, hexScanRecord, rssi, result) {
+  onScan : function(chipId, device, hexScanRecord, rssi, result) {
     console.log("scan result");
     console.log(chipId, device, hexScanRecord, rssi);
     if (device.id == address) {
@@ -213,18 +214,18 @@ var server = thrift.createServer(Notifier, {
     }
     result(null);
   },
-  onServicesDiscovered : function(session, deviceId, s, result) {
+  onServicesDiscovered : function(deviceId, s, result) {
     var util = require('util');
     console.log(util.inspect(s, {depth:100}));
     result(null);
   },
-  onNotify: function(session, deviceId, handle, hexData) {
+  onNotify: function(deviceId, handle, hexData) {
     console.log(deviceId, handle, hexData);
   },
-  onReadByHandle: function(session, deviceId, handle, hexData) {
+  onReadByHandle: function(deviceId, handle, hexData) {
     console.log(deviceId, handle, hexData);
   },
-  onMessage : function(session, key, message) {
+  onMessage : function(key, message) {
     console.log(key, message);
   }
 });
