@@ -1,0 +1,21 @@
+{
+  "name": "cassia-bussiness-sdk",
+  "description": "cassia bussiness sdk",
+  "homepage": "http://www.cassianetworks.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AcaciaNetworks/cassia-server.git"
+  },
+  "version": "1.0.0",
+  "author": {
+    "name": "Sirius Lee",
+    "email": "liyi@cassianetworks.com",
+    "url": "http://www.cassianetworks.com/"
+  },
+  "devDependencies": {
+    "underscore": "^1.8.3"
+  },
+  "dependencies": {
+    "thrift": "0.9.3"
+  }
+}
