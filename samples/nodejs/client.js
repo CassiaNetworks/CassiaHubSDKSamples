@@ -1,36 +1,98 @@
+'use strict'
+
+var dgram = require('dgram');
+
 var thrift = require("thrift");
-var ttypes = require("./gen-nodejs/2b_types");
 var Controller = require("./gen-nodejs/ControlService");
 var Notifier = require('./gen-nodejs/NotificationService');
-transport = thrift.TBufferedTransport();
-protocol = thrift.TBinaryProtocol();
 
-var ip = "172.16.30.102";
+var message = new Buffer("CASSIA_HUB_DISCOVERY");
+var client = dgram.createSocket("udp4");
 
-var local = "192.168.10.23";
-var port = 9990;
-var connection = thrift.createConnection(ip, 9090, {
-  transport : transport,
-  protocol : protocol
+var hubIP,
+    hubPort,
+    localIP,
+    localPort = 9999;
+var client;
+
+//发现hub
+client.bind(
+  {},//配置一个和Cassia Hub在同一个内网的ip 
+  function() {
+      client.setBroadcast(true);
+      client.send(message, 0, message.length, 0x8888, "255.255.255.255");
+
+  }
+)
+client.on('message', function (message, rinfo) {
+    console.log('Message from: ' + rinfo.address + ':' + rinfo.port +' - ' + message);
+    message = message.toString();
+    var msgArr = message.split('-');
+    hubIP = msgArr[0];
+    hubPort = msgArr[1];
+
+    var connection = thrift.createConnection(hubIP, hubPort, {
+      transport : transport,
+      protocol : protocol
+    });
+
+    connection.on('close', function() {
+      console.log("connection close");
+      process.exit();
+    });
+    connection.on('connect', function() {
+      console.log("connection establish");
+    });
+    connection.on('error', function(err) {
+      console.log(err);
+    });
+
+    client = thrift.createClient(Controller, connection);
+    client.setupNotify(localIP, localPort, false, function(err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      client.startScan('0', 10000, function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+
+      // client.connect('0', address, "public", function(err, response) {
+      //   if (err) {
+      //     console.log(err);
+      //     return;
+      //   }
+      // });
+
+
+
+    });
+
 });
 
-connection.on('close', function() {
-  console.log("connection close");
-  process.exit();
-});
-connection.on('connect', function() {
-  console.log("connection establish");
-});
-connection.on('error', function(err) {
-  console.log(err);
-});
+
+var transport = thrift.TBufferedTransport();
+var protocol = thrift.TBinaryProtocol();
 
 
-var client = thrift.createClient(Controller, connection);
+//获取本机ip
+var os = require('os');
+let netInterface = os.networkInterfaces();
+for(let k in netInterface) {
+  if(k == 'vboxnet0') continue;
+  netInterface[k].forEach(function (v) {
+    if(v.internal == false && v.family == 'IPv4') {
+      localIP = v.address;
+    }
+  })
+}
+console.log(localIP)
 
-var address = "F4:06:A5:01:30:1E";
 var server = thrift.createServer(Notifier, {
-  userChallenge: function(session, result) {
+  userChallenge: function(result) {
     console.log("user challenge()");
     var info = new AuthInfo();
     info.userId = '123';
@@ -38,76 +100,61 @@ var server = thrift.createServer(Notifier, {
     info.secret = "234";
     result(null, info);
   },
-  onConnectionStateChange : function(session, chipId, deviceId, status) {
+  onConnectionStateChange : function(chipId, deviceId, status) {
     console.log('connect state change', chipId, deviceId, status);
     if (status == 1) {
-      client.discoverServices(deviceId, function(err, response) {
-        console.log(err, response);
+      client.discoverServices(deviceId, function(err) {
         //set notification
-        client.writeByHandle(address, 19, "0100", function(err, response) {
-          console.log("write handle return", err, response);
-        });
+        // client.writeByHandle(address, 19, "0100", function(err, response) {
+        //   console.log("write handle return", err, response);
+        // });
       });
+      client.getConnectedDevices(function(err, lists) {
+        if(err) console.error(err);
+        console.log('connectedDevices: ')
+        console.log(lists);
+      })
     }
   },
-  onScan : function(session, chipId, device, hexScanRecord, rssi, result) {
-    console.log("scan result");
-    console.log(chipId, device, hexScanRecord, rssi);
+  onScan : function(chipId, device, hexScanRecord, rssi, result) {
+    // if(device.id == address) {
+      console.log("scan result");
+      console.log(chipId, device, hexScanRecord, rssi);
+      client.connect('1', device.id, 'public')
+    // }
     result(null);
   },
-  onServicesDiscovered : function(session, deviceId, s, result) {
-    // console.log(deviceId, s);
+  onServicesDiscovered : function(deviceId, s, result) {
+    console.log('service', deviceId)
     var util = require('util');
     console.log(util.inspect(s, {depth:100}));
     result(null);
   },
-  onCharacteristicRead: function(session, chipId, deviceId, uuid, hexData) {
+  onCharacteristicRead: function(chipId, deviceId, uuid, hexData) {
 
   },
-  onCharacteristicWrite: function(session, chipId, deviceId, uuid) {
+  onCharacteristicWrite: function(chipId, deviceId, uuid) {
 
   },
-  onCharacteristicChanged: function(session, deviceId, uuid, hexData) {
+  onCharacteristicChanged: function(deviceId, uuid, hexData) {
     console.log(deviceId, uuid, hexData);
   },
-  onDescriptorRead: function(session, chipId, deviceId, uuid, hexData) {
+  onDescriptorRead: function(chipId, deviceId, uuid, hexData) {
 
   },
-  onDescriptorWrite: function(session, chipId, deviceId, uuid) {
+  onDescriptorWrite: function(chipId, deviceId, uuid) {
 
   },
-  onNotify: function(session, deviceId, handle, hexData) {
+  onNotify: function(deviceId, handle, hexData) {
     console.log("on notify");
     console.log(deviceId, handle, hexData);
   },
-  onReadByHandle: function(session, deviceId, handle, hexData) {
+  onReadByHandle: function(deviceId, handle, hexData) {
     console.log(deviceId, handle, hexData);
   },
-  onMessage : function(session, key, message) {
+  onMessage : function(key, message) {
     console.log(key, message);
   }
 });
 
-server.listen(port);
-
-client.setupNotify(local, port, function(err, response) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-   client.startScan('0', 50000, function(err, response) {
-     if (err) {
-     console.log(err);
-   }
-   });
-
-  // client.connect('0', address, "public", function(err, response) {
-  //   if (err) {
-  //     console.log(err);
-  //     return;
-  //   }
-  // });
-
-
-
-});
+server.listen(localPort);
