@@ -8,6 +8,8 @@ import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
+import com.cassianetworks.hub.sdk.*;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -29,7 +31,6 @@ public class UserApp {
         ControlService.Client client = new ControlService.Client(protocol);
         client.setupNotify(LOCAL_IP, LOCAL_PORT);
         client.startScan("0", 3000);
-//        client.connect("CC:1B:E0:E0:E0:F6", "00:BB:BB:44:05:3D", "3");
     }
 
     public void runServer() throws TException{
