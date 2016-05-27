@@ -53,14 +53,15 @@ public class DiscoverHub {
         String ip = "255.255.255.255"; //广播地址
         int port = 0x8888;  //udp广播端口
         try {
-            DatagramSocket clientSocket = new DatagramSocket(); //发送和接收数据报的DatagramSocket对象
+            DatagramSocket clientSocket = new DatagramSocket(null); //发送和接收数据报的DatagramSocket对象
+            clientSocket.bind(new InetSocketAddress("192.168.0.xxx", 0)); //将ip替换为与Hub在同一内网中的地址
             InetAddress address = InetAddress.getByName(ip);
             String sendData = "CASSIA_HUB_DISCOVERY";
             DatagramPacket sendPacket = new DatagramPacket(sendData.getBytes(), sendData.getBytes().length, address, port);
             clientSocket.send(sendPacket); //向hub发送数据报
             byte[] buf = new byte[1024];
             DatagramPacket recvPacket = new DatagramPacket(buf, buf.length);
-			clientSocket.receive(recvPacket); //接收hub回复的数据报
+            clientSocket.receive(recvPacket); //接收hub回复的数据报
             System.out.println("receive： " + new String(recvPacket.getData(), 0, recvPacket.getLength()));
             clientSocket.close();
         } catch (Exception e) {
@@ -124,9 +125,10 @@ Cassia Hub使用Thrift进行通讯,Apache Thrift 是 Facebook 实现的一种高
   });
   server.listen(port);
   ```
-7. 调用setupNotify告诉CassiaHub本地的ip和端口,让Cassia Hub连接回来
+7. 调用setupNotify告诉CassiaHub本地的ip和端口,让Cassia Hub连接回当前机器,如果连接不成功通知将不能到达
   ```javascript
   client.setupNotify(local, port);
+  
   ```
 8. 双向通讯通道建立,现在即可以向Cassia Hub发送指令,也可以收到Cassia Hub的通知了
 
