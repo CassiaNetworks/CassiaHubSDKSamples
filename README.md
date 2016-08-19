@@ -1,3 +1,3 @@
 # Documentation
-https://cassiasdk.apiary.io
+http://docs.cassiasdk.apiary.io
 
