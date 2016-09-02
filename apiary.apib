@@ -123,13 +123,14 @@ Resources related to cassia hub in the API.
 
         {"error":"access_denied","error_description":"Bearer token not found"}
 
+
 ## Scan [/gap/nodes/{?event,mac,chip}] 
 ### Start scan and it will return all advertisements received. [GET]
 
 + Parameters
     + event (required, number, `1`) ... as a [Server-Sent Events](https://www.w3.org/TR/2011/WD-eventsource-20110208/)
     + mac (optional, string) ... hub mac id as format: `CC:1B:E0:E0:14:90`
-    + chip (required, number) ... chip id as format : '0' or '1'
+    + chip (optional, number) ... chip id as format : '0' or '1'
     
 + Request (application/json)
         
@@ -241,24 +242,27 @@ Resources related to cassia hub in the API.
 + Parameters
     + node (required, string) ... the node mac id as format :`aa:aa:aa:aa:aa`
     + mac (optional, string) ... hub mac id as format: `CC:1B:E0:E0:14:90`
-    + chip (required, number) ... chip id as format : '0' or '1'
+    + chip (optional, number) ... chip id as format : '0' or '1'
 
 + Request (application/json)
-    
-        {
-            "timeOut": ""
-            "type" :"random/public"
-        }
-    
-     + Headers
+
+    + Headers
     
             version: 1
+    
+    + Body
+    
+            {
+                "timeOut": ""
+                "type" :"random/public"
+            }
+    
+     
 
 
 + Response 200 (application/string)
 
         OK
-
 
 + Response 400 (application/string)
 
@@ -717,6 +721,7 @@ Resources related to cassia hub in the API.
 + Request (application/json)
         
     + Headers
+    
             version: 1
         
         
@@ -738,6 +743,7 @@ Resources related to cassia hub in the API.
 + Request (application/json)
         
     + Headers
+    
             version: 1
         
         
