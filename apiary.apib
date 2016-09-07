@@ -61,12 +61,12 @@ In [Tutorials](#reference/tutorials) you'll find code & article based content, i
 - You can use RESTful API access your Cassia AP now append an extra parameter `mac=<Cassia-AP-MAC>`
 
 for example:
-  you get a developer account with name: tester, secret: 9f71b550a8a6dd02, use base64 encode string "tester:9f71b550a8a6dd02", get string "dGVzdGVyOjlmNzFiNTUwYThhNmRkMDI="
+  you get a developer account with name: tester, secret: 10b83f9a2e823c47, use base64 encode string "tester:10b83f9a2e823c47", get string "dGVzdGVyOjEwYjgzZjlhMmU4MjNjNDc="
   authenticate using following http request:
 ```
     POST /oauth2/token HTTP/1.1
     Host: api.cassianetworks.com
-    Authorization : Basic dGVzdGVyOjlmNzFiNTUwYThhNmRkMDI=
+    Authorization: Basic dGVzdGVyOjEwYjgzZjlhMmU4MjNjNDc=
     Content-Type: application/x-www-form-urlencoded
     
     grant_type=client_credentials
