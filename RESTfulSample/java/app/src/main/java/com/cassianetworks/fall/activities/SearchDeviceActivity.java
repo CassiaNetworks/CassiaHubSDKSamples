@@ -11,10 +11,10 @@ import android.widget.TextView;
 
 import com.cassianetworks.fall.BaseActivity;
 import com.cassianetworks.fall.R;
+import com.cassianetworks.fall.domain.Callback;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.fall.domain.DeviceHandle;
-import com.cassianetworks.mylibrary.domain.Callback;
-import com.cassianetworks.mylibrary.views.MyListView;
+import com.cassianetworks.fall.views.MyListView;
 import com.cassianetworks.sdklibrary.SDKService;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;

@@ -1,4 +1,4 @@
-<com.cassianetwork.mylibrary.views.DampScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.cassianetworks.fall.views.DampScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/dcv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.cassianetwork.mylibrary.views.MyListView
+        <com.cassianetworks.fall.views.MyListView
             android:id="@+id/lv_scan_result"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -25,4 +25,4 @@
         <View style="@style/title_line_view" />
     </LinearLayout>
 
-</com.cassianetwork.mylibrary.views.DampScrollView>
+</com.cassianetworks.fall.views.DampScrollView>

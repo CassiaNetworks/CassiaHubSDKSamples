@@ -143,6 +143,9 @@ public class Indicator {
      */
     public void writeHandle(String mac, int handle, String value, final SDKService.Callback<String> callback) {
         SDKService.getInstance().writeHandle(mac, handle, value, callback);
+
+    } public void getNotification(String mac, int handle, String value, final SDKService.Callback<String> callback) {
+        SDKService.getInstance().writeHandle(mac, handle, value, callback);
     }
 
     /**

@@ -2,7 +2,6 @@ package com.cassianetworks.fall.fragment.main;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,18 +16,12 @@ import com.cassianetworks.fall.R;
 import com.cassianetworks.fall.activities.DeviceActivity;
 import com.cassianetworks.fall.activities.SearchDeviceActivity;
 import com.cassianetworks.fall.domain.Device;
-import com.cassianetworks.mylibrary.views.MyGridView;
-import com.cassianetworks.sdklibrary.SDKService;
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
+import com.cassianetworks.fall.views.MyGridView;
 
-import org.xutils.common.util.LogUtil;
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.ViewInject;
 import org.xutils.x;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @ContentView(R.layout.fragment_show_device)

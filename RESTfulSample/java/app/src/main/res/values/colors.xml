@@ -8,4 +8,11 @@
     <color name="cf5f5f5">#f5f5f5</color>
     <color name="c747474">#747474</color>
     <color name="selector">#77000000</color>
+    <color name="bocop_dialog_bg">#44000000</color>
+    <color name="btntextcolor">#ff1E90FF</color>
+    <color name="cc1c1c1">#c1c1c1</color>
+    <color name="cdedede">#dedede</color>
+    <color name="cffad00">#ffad00</color>
+    <color name="loading_dot">#dedede</color>
+    <color name="bg">#f5f5f5</color>
 </resources>

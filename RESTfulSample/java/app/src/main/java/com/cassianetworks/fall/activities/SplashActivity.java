@@ -6,7 +6,6 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import com.cassianetworks.fall.BaseActivity;
-import com.cassianetworks.fall.BaseApplication;
 import com.cassianetworks.fall.R;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.sdklibrary.SDKService;
@@ -62,14 +61,10 @@ public class SplashActivity extends BaseActivity {
         });
 
 
-
-
-
-
     }
 
     private void getConnectList() {
-        indicator.connectList( new SDKService.Callback<String>() {
+        indicator.connectList(new SDKService.Callback<String>() {
             @Override
             public void run(String value) {
                 if (TextUtils.isEmpty(value)) {

@@ -1,9 +1,7 @@
 package com.cassianetworks.fall.utils;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -29,7 +27,7 @@ import android.widget.RelativeLayout;
 import com.cassianetworks.fall.BaseActivity;
 import com.cassianetworks.fall.BaseApplication;
 import com.cassianetworks.fall.R;
-import com.cassianetworks.mylibrary.views.TipsToast;
+import com.cassianetworks.fall.views.TipsToast;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -217,6 +215,7 @@ public class SysUtils {
         }
         return "";
     }
+
     public static long getLongDate(String date) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -383,7 +382,6 @@ public class SysUtils {
     }
 
 
-
     public static String getSdkVersion() {
         return Build.VERSION.RELEASE;
     }
@@ -421,8 +419,6 @@ public class SysUtils {
         Date curDate = new Date(System.currentTimeMillis());
         return formatter.format(curDate);
     }
-
-
 
 
 }

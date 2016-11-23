@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import android.text.TextUtils;
 
 import com.cassianetworks.fall.R;
-import com.cassianetworks.mylibrary.views.CustomDialog;
+import com.cassianetworks.fall.views.CustomDialog;
 
 
 /**

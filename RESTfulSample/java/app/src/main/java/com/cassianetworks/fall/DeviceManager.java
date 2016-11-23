@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.cassianetworks.fall.domain.Callback;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.fall.domain.Record;
 import com.cassianetworks.fall.utils.SysUtils;
-import com.cassianetworks.mylibrary.domain.Callback;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;

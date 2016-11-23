@@ -28,7 +28,7 @@
         android:scaleType="center"
         android:src="@mipmap/device_icon" />
 
-    <com.cassianetworks.mylibrary.views.MyListView
+    <com.cassianetworks.fall.views.MyListView
         android:id="@+id/lv_device_handle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
