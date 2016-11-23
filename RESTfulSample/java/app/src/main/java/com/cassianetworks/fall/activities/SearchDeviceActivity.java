@@ -1,7 +1,6 @@
 package com.cassianetworks.fall.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +10,11 @@ import android.widget.TextView;
 
 import com.cassianetworks.fall.BaseActivity;
 import com.cassianetworks.fall.R;
-import com.cassianetworks.fall.domain.Callback;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.fall.domain.DeviceHandle;
 import com.cassianetworks.fall.views.MyListView;
-import com.cassianetworks.sdklibrary.SDKService;
+import com.cassianetworks.sdklibrary.Callback;
+import com.cassianetworks.sdklibrary.HttpUtils;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -23,10 +22,13 @@ import org.xutils.common.util.LogUtil;
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.ViewInject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
+
+import okhttp3.Response;
 
 import static com.cassianetworks.fall.BaseApplication.deviceManager;
 import static com.cassianetworks.fall.BaseApplication.indicator;
@@ -35,7 +37,6 @@ import static com.cassianetworks.fall.BaseApplication.indicator;
 public class SearchDeviceActivity extends BaseActivity {
     @ViewInject(R.id.tv_page_name)
     TextView tvPageName;
-    private Observer observer;
     Device device;
     @ViewInject(R.id.lv_scan_result)
     MyListView lvScanResult;
@@ -47,60 +48,52 @@ public class SearchDeviceActivity extends BaseActivity {
         final ScanResultAdapter adapter = new ScanResultAdapter();
         lvScanResult.setAdapter(adapter);
         deviceManager.clearScanDevList();
-        observer = new Observer() {
+        indicator.scan(10000, new HttpUtils.OkHttpCallback() {
             @Override
-            public void update(Observable observable, final Object data) {
-                Intent intent = (Intent) data;
-                final String action = intent.getAction();
-                switch (action) {
-                    case SDKService.ACTION_DEVICE_FOUND:
-                        String name = intent.getStringExtra("name");
-                        String addr = intent.getStringExtra("addr");
-                        double rssi = intent.getDoubleExtra("rssi", 0);
-                        String scanData = intent.getStringExtra("scanData");
-                        device = new Device(name, addr, rssi, scanData);
-                        deviceManager.addScanDevice(device);
-                        adapter.notifyDataSetChanged();
-                        break;
-                    default:
-                        break;
+            protected void onSuccess(final Response response) {
 
+                Reader charStream = response.body().charStream();
+                BufferedReader in = new BufferedReader(charStream);
+                String line;
+
+                try {
+                    while ((line = in.readLine()) != null) {
+                        if (line.contains("CassiaFD_1.2") || TextUtils.isEmpty("CassiaFD_1.2")) {
+
+                            HashMap result = new Gson().fromJson(line.split("data:")[1], HashMap.class);
+                            LinkedTreeMap bdaddrs = (LinkedTreeMap) ((ArrayList) result.get("bdaddrs")).get(0);
+                            final String bdaddr = (String) bdaddrs.get("bdaddr");
+                            final String scanData = (String) result.get("scanData");
+                            final String name = (String) result.get("name");
+                            final double rssi = (double) result.get("rssi");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    device = new Device(name, bdaddr, rssi, scanData);
+                                    deviceManager.addScanDevice(device);
+
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+
             }
 
-        };
-        indicator.scan(10000, "CassiaFD_1.2");
+            @Override
+            protected void onFailure(String msg) {
+
+            }
+        });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        addObserver();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        removeObserver();
-    }
-
-
-    public void removeObserver() {
-        LogUtil.d("removeObserver");
-        if (observer != null)
-            indicator.removeObserver(observer);
-    }
-
-    public void addObserver() {
-        LogUtil.d("addObserver");
-        if (observer != null)
-            indicator.addObserver(observer);
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        removeObserver();
         indicator.stopScan();
     }
 
@@ -143,27 +136,37 @@ public class SearchDeviceActivity extends BaseActivity {
                 @Override
                 public void onClick(View v) {
 
-                    indicator.connect(mac, new SDKService.Callback<Integer>() {
+                    indicator.connect(mac, new Callback<Integer>() {
                         @Override
                         public void run(Integer value) {
                             LogUtil.d("test search connect value" + value);
                             if (value == 1) {
 
-                                indicator.discoverServices(mac, new SDKService.Callback<String>() {
+                                indicator.discoverServices(mac, new Callback<String>() {
                                     @Override
                                     public void run(String value) {
                                         if (!TextUtils.isEmpty(value)) {
-
 
                                             LogUtil.d("test discover service data " + value);
                                             HashMap ret = new Gson().fromJson(value, HashMap.class);
                                             ArrayList services = (ArrayList) ret.get("services");
                                             for (int i = 0; i < services.size(); i++) {
                                                 LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) services.get(i);
-                                                int handle = ((Double) map.get("handle")).intValue();
+                                                int startHandle = ((Double) map.get("startHandle")).intValue();
+                                                int endHandle = ((Double) map.get("endHandle")).intValue();
                                                 String uuid = (String) map.get("uuid");
-                                                LogUtil.d(" i =" + i + " handle=" + handle + " uuid=" + uuid);
-                                                device.getHandleList().add(new DeviceHandle(handle, uuid));
+
+                                                ArrayList characteristics = (ArrayList) map.get("characteristics");
+                                                if (characteristics != null)
+                                                    for (int j = 0; j < characteristics.size(); j++) {
+                                                        LinkedTreeMap<String, Object> c = (LinkedTreeMap<String, Object>) characteristics.get(j);
+                                                        int handle = ((Double) c.get("handle")).intValue();
+                                                        String cuuid = (String) c.get("uuid");
+                                                        int properties = ((Double) c.get("properties")).intValue();
+                                                        int valueHandle = ((Double) c.get("valueHandle")).intValue();
+                                                        device.getHandleList().add(new DeviceHandle(handle, cuuid,properties,valueHandle));
+                                                    }
+
                                             }
                                             runOnUiThread(new Runnable() {
                                                 @Override
@@ -177,7 +180,13 @@ public class SearchDeviceActivity extends BaseActivity {
                                             });
 
                                         } else {
-                                            ivAdd.setSelected(!ivAdd.isSelected());
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    ivAdd.setSelected(!ivAdd.isSelected());
+                                                }
+                                            });
+
                                         }
 
                                     }

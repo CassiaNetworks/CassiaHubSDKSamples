@@ -1,22 +1,17 @@
 package com.cassianetworks.sdklibrary;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Base64;
 
 import com.google.gson.Gson;
 
-import org.xutils.common.util.LogUtil;
-import org.xutils.http.RequestParams;
-import org.xutils.x;
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
-import okhttp3.Callback;
+import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -25,11 +20,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-class HttpUtils {
-    private static Handler handler = new Handler(Looper.getMainLooper());
+import static com.cassianetworks.sdklibrary.Indicator.log;
+
+public class HttpUtils {
     private static String root = "http://api.cassianetworks.com/";
     private static final int TIMEOUT = 30;
-    static String access_token;
+    private static String access_token;
     static String hubMac = "";
 
     private static OkHttpClient client = new OkHttpClient().newBuilder()
@@ -39,21 +35,51 @@ class HttpUtils {
             .build();
     private static Call call;
 
-    public static void oauth(HttpCallBack<String> callback, final String developer, final String pwd) {
-        String strBase64 = new String(Base64.encode((developer + ":" + pwd).getBytes(), Base64.DEFAULT));
-        RequestParams params = new RequestParams(root + "oauth2/token");
-        params.setConnectTimeout(30 * 1000);
-        params.addHeader("Authorization", "Basic " + strBase64);
-        Map<String, String> map = new HashMap<>();
-        map.put("grant_type", "client_credentials");
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            params.addParameter(entry.getKey(), entry.getValue());
+    public static void oauth(final Callback<Integer> callback, final String developer, final String pwd) {
+        String credential = Credentials.basic(developer, pwd);
+        Headers.Builder headersBuilder = new Headers.Builder()
+                .add("Authorization", credential);
+        Headers requestHeaders = headersBuilder.build();
 
-        }
-        x.http().post(params, callback);
+        FormBody.Builder builder = new FormBody.Builder();
+        builder.add("grant_type", "client_credentials");
+        FormBody body = builder.build();
+        final Request request = new Request.Builder().url(root + "oauth2/token").headers(requestHeaders)
+                .post(body).build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                log("request fail");
+                callback.run(0);
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (response.isSuccessful()) {
+
+                    Reader charStream = response.body().charStream();
+                    BufferedReader in = new BufferedReader(charStream);
+                    String line;
+                    try {
+                        while ((line = in.readLine()) != null) {
+                            HashMap result = new Gson().fromJson(line, HashMap.class);
+                            access_token = (String) result.get("access_token");
+                            log("success access_token="+access_token);
+                            callback.run(1);
+                        }
+                    } catch (IOException e) {
+                        callback.run(0);
+                        e.printStackTrace();
+                    }
+                } else {
+                    callback.run(0);
+                }
+                response.body().close();
+            }
+        });
 
     }
-
 
     public static void scan(OkHttpCallback callback) {
         Map<String, String> map = new HashMap<>();
@@ -67,7 +93,6 @@ class HttpUtils {
         Map<String, Object> map = new HashMap<>();
         map.put("type", "public");
         jsonPost(root + "gap/nodes/" + mac + "/connection?mac=" + hubMac + "&chip=" + chip, map, callback);
-
     }
 
     public static void connectList(String connection_state, OkHttpCallback callback) {
@@ -79,13 +104,10 @@ class HttpUtils {
 
     public static void disconnect(String mac, OkHttpCallback callback) {
         delete(root + "gap/nodes/" + mac + "/connection?mac=" + hubMac, null, callback);
-
     }
 
     public static void discoverServices(String mac, OkHttpCallback callback) {
-
         get(root + "gatt/nodes/" + mac + "/services/characteristics/descriptors?mac=" + hubMac + "&all=1", null, callback);
-
     }
 
     public static void writeHandle(String mac, int handle, String value, OkHttpCallback callback) {
@@ -98,27 +120,26 @@ class HttpUtils {
 
     public static void get(String url, Map<String, String> params, final OkHttpCallback callback) {
         url = buildGetUrl(url, params);
-        LogUtil.d("url=" + url);
+        log("url=" + url);
         Headers.Builder headersBuilder = new Headers.Builder()
                 .add("Authorization", "Bearer " + access_token);
         headersBuilder.set("Content-Type", "application/json; charset=utf-8");
         Headers requestHeaders = headersBuilder.build();
         Request request = new Request.Builder().url(url).headers(requestHeaders).build();
         call = client.newCall(request);
-        onStart(callback);
-        call.enqueue(new Callback() {
+        callback.onStart();
+        call.enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                onError(callback, e.getMessage());
+                callback.onFailure(e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    onSuccess(callback, response);
-
+                    callback.onSuccess(response);
                 } else {
-                    onError(callback, response.message());
+                    callback.onFailure(response.message());
                     response.body().close();
                 }
             }
@@ -130,7 +151,7 @@ class HttpUtils {
     public static void removeRequest() {
         if (call != null) {
             call.cancel();
-            LogUtil.d("--removeRequest cancel");
+            log("--removeRequest cancel");
         }
 
     }
@@ -140,22 +161,19 @@ class HttpUtils {
                 .add("Authorization", "Bearer " + access_token);
         Headers requestHeaders = headersBuilder.build();
         Request request = new Request.Builder().url(url).headers(requestHeaders).delete().build();
-        onStart(callback);
-
-        client.newCall(request).enqueue(new Callback() {
+        callback.onStart();
+        client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                onError(callback, e == null ? "err" : e.getMessage().toString());
-
+                callback.onFailure(e == null ? "err" : e.getMessage().toString());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    onSuccess(callback, response);
-
+                    callback.onSuccess(response);
                 } else {
-                    onError(callback, response.message());
+                    callback.onFailure(response.message());
                 }
                 response.body().close();
 
@@ -181,23 +199,20 @@ class HttpUtils {
 
         Request request = new Request.Builder().url(url).headers(requestHeaders)
                 .post(body).build();
+        callback.onStart();
 
-        onStart(callback);
-
-        client.newCall(request).enqueue(new Callback() {
+        client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                onError(callback, e.getMessage().toString());
-
+                callback.onFailure(e.getMessage().toString());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    onSuccess(callback, response);
-
+                    callback.onSuccess(response);
                 } else {
-                    onError(callback, response.message());
+                    callback.onFailure(response.message());
                 }
                 response.body().close();
 
@@ -214,57 +229,25 @@ class HttpUtils {
 
         Request request = new Request.Builder().url(url).headers(requestHeaders)
                 .post(body).build();
+        callback.onStart();
 
-        onStart(callback);
-
-        client.newCall(request).enqueue(new Callback() {
+        client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                onError(callback, e.getMessage().toString());
-
+                callback.onFailure(e.getMessage().toString());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    onSuccess(callback, response);
-
+                    callback.onSuccess(response);
                 } else {
-                    onError(callback, response.message());
+                    callback.onFailure(response.message());
                 }
                 response.body().close();
 
             }
         });
-    }
-
-    private static void onStart(OkHttpCallback callback) {
-        LogUtil.i("onStart....");
-        if (null != callback) {
-            callback.onStart();
-        }
-    }
-
-    private static void onSuccess(final OkHttpCallback callback, final Response response) {
-        LogUtil.i("onSuccess....");
-        if (null != callback) {
-            handler.post(new Runnable() {
-                public void run() {
-                    callback.onSuccess(response);
-                }
-            });
-        }
-    }
-
-    private static void onError(final OkHttpCallback callback, final String msg) {
-        LogUtil.e("onError..." + msg);
-        if (null != callback) {
-            handler.post(new Runnable() {
-                public void run() {
-                    callback.onFailure(msg);
-                }
-            });
-        }
     }
 
     public static String buildGetUrl(String url, Map<String, String> map) {
@@ -286,11 +269,11 @@ class HttpUtils {
 
     public static abstract class OkHttpCallback {
 
-        abstract void onSuccess(Response response);
+        protected abstract void onSuccess(Response response);
 
-        abstract void onFailure(String msg);
+        protected abstract void onFailure(String msg);
 
-        void onStart() {
+        protected void onStart() {
         }
     }
 

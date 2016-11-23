@@ -27,7 +27,6 @@ import java.util.List;
 @ContentView(R.layout.fragment_show_device)
 public class ShowDeviceFragment extends BaseFragment {
     private List<Device> devicesList;
-    //    private List<Device> devicesList;
     private DeviceAdapter adapter;
     private Device addIcon;
     @ViewInject(R.id.gv_device)
@@ -59,7 +58,6 @@ public class ShowDeviceFragment extends BaseFragment {
             }
         });
 
-
     }
 
     @Override
@@ -73,7 +71,6 @@ public class ShowDeviceFragment extends BaseFragment {
         @Override
         public int getCount() {
             return devicesList == null ? 0 : devicesList.size();
-
         }
 
         @Override
@@ -103,12 +100,8 @@ public class ShowDeviceFragment extends BaseFragment {
             Device device = getItem(position);
             holder.tvName.setText(device.getName());
             holder.ivIcon.setImageResource(R.mipmap.device_icon);
-
-
             return convertView;
         }
-
-
     }
 
     class DeviceViewHolder {

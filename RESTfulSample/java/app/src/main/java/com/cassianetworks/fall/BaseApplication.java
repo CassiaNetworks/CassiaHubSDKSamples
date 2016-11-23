@@ -28,9 +28,9 @@ public class BaseApplication extends Application {
 
         application = this;
         deviceManager = DeviceManager.getInstance(this);
-        indicator = new Indicator(this, HUB_MAC);
+        indicator = new Indicator( HUB_MAC);
         indicator.setDebug(true);
-        indicator.startService();
+//        indicator.startService();
 
 //        scanIntent = new Intent(this, ScanService.class);
 //        startService(scanIntent);

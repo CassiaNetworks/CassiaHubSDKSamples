@@ -17,4 +17,8 @@
     <string name="tip">提示</string>
     <string name="dialog_no">取消</string>
     <string name="dialog_yes">确定</string>
+    <string name="valuehandle">valueHandle : %1$d</string>
+    <string name="properties">properties : %1$d</string>
+    <string name="handle">handle : %1$d</string>
+    <string name="uuid">uuid : %1$s</string>
 </resources>

@@ -6,6 +6,17 @@
     android:paddingLeft="15dp"
     android:paddingRight="15dp">
 
+
+    <TextView
+        android:id="@+id/tv_uuid"
+        style="@style/search_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="@string/uuid" />
+
     <TextView
         android:id="@+id/tv_handle"
         style="@style/search_result_mac"
@@ -13,18 +24,25 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="11.2233."
-        android:textColor="#000" />
+        android:text="@string/handle" />
 
     <TextView
-        android:id="@+id/tv_uuid"
+        android:id="@+id/tv_properties"
         style="@style/search_result_mac"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="-50" />
+        android:text="@string/properties" />
+
+    <TextView
+        android:id="@+id/tv_valueHandle"
+        style="@style/search_result_mac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="@string/valuehandle" />
 
     <View style="@style/title_line_view" />
 

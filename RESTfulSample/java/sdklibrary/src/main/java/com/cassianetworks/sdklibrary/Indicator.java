@@ -1,37 +1,22 @@
 package com.cassianetworks.sdklibrary;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
 
-import org.xutils.x;
-
-import java.util.Observer;
+import android.util.Log;
 
 import static com.cassianetworks.sdklibrary.HttpUtils.hubMac;
 
 
 public class Indicator {
-    private Context context;
+    private static boolean debug = true;
+    private final static String TAG = "CassiaIndicator";
 
     /**
      * 初始化Indicator
      *
-     * @param context 上下文
-     * @param mac     HUB的mac地址
+     * @param mac HUB的mac地址
      */
-    public Indicator(Context context, @NonNull String mac) {
-        this.context = context;
+    public Indicator(String mac) {
         hubMac = mac;
-    }
-
-    /**
-     * 设置debug模式
-     *
-     * @param debug
-     */
-    public void setDebug(boolean debug) {
-        x.Ext.setDebug(debug);
     }
 
     /**
@@ -41,28 +26,17 @@ public class Indicator {
      * @param pwd       开发者密码
      * @param callback  {1:success,0:fail}
      */
-    public void oauth(@NonNull String developer, @NonNull String pwd, final SDKService.Callback<Integer> callback) {
-        SDKService.getInstance().oauth(callback, developer, pwd);
-    }
-
-
-    /**
-     * 获取hub当前扫描的状态
-     *
-     * @return {true:正在扫描 false:没有扫描}
-     */
-    public boolean getScanFlag() {
-        return SDKService.getInstance().scanning;
+    public void oauth(String developer, String pwd, final Callback<Integer> callback) {
+        HttpUtils.oauth(callback, developer, pwd);
     }
 
     /**
      * 开始扫描
      *
      * @param milliseconds 扫描时间 如果milliseconds == -1 表示不停止扫描
-     * @param key          筛选数据的条件
      */
-    public void scan(final int milliseconds, final String key) {
-        SDKService.getInstance().scan(milliseconds, key);
+    public void scan(final int milliseconds, HttpUtils.OkHttpCallback callback) {
+        SDKService.getInstance().scan(milliseconds, callback);
     }
 
     /**
@@ -80,7 +54,7 @@ public class Indicator {
      * @param chip     HUB的芯片 {0,1}
      * @param callback {1:success,0:fail}
      */
-    public void connect(String mac, String chip, final SDKService.Callback<Integer> callback) {
+    public void connect(String mac, String chip, final Callback<Integer> callback) {
         SDKService.getInstance().connect(mac, chip, callback);
     }
 
@@ -91,7 +65,7 @@ public class Indicator {
      * @param mac      设备的MAC地址
      * @param callback {1:success,0:fail}
      */
-    public void connect(String mac, final SDKService.Callback<Integer> callback) {
+    public void connect(String mac, final Callback<Integer> callback) {
         connect(mac, "1", callback);
     }
 
@@ -100,7 +74,7 @@ public class Indicator {
      *
      * @param mac 设备地址
      */
-    public void disconnect(String mac, final SDKService.Callback<Integer> callback) {
+    public void disconnect(String mac, final Callback<Integer> callback) {
         SDKService.getInstance().disconnect(mac, callback);
     }
 
@@ -110,7 +84,7 @@ public class Indicator {
      * @param connection_state 设备的连接状态 {connected:已连接,disconnected:未连接}
      * @param callback         返回连接设备的字符串,空串表示没有设备或者是获取失败
      */
-    public void connectList(String connection_state, final SDKService.Callback<String> callback) {
+    public void connectList(String connection_state, final Callback<String> callback) {
         SDKService.getInstance().connectList(connection_state, callback);
     }
 
@@ -119,7 +93,7 @@ public class Indicator {
      *
      * @param callback 返回连接设备的json字符串,空串表示没有设备或者是获取失败
      */
-    public void connectList(final SDKService.Callback<String> callback) {
+    public void connectList(final Callback<String> callback) {
         connectList("connected", callback);
     }
 
@@ -129,7 +103,7 @@ public class Indicator {
      * @param mac      设备的mac地址
      * @param callback 设备服务集合的json字符串
      */
-    public void discoverServices(String mac, final SDKService.Callback<String> callback) {
+    public void discoverServices(String mac, final Callback<String> callback) {
         SDKService.getInstance().discoverServices(mac, callback);
     }
 
@@ -141,45 +115,28 @@ public class Indicator {
      * @param value    handle的值
      * @param callback
      */
-    public void writeHandle(String mac, int handle, String value, final SDKService.Callback<String> callback) {
+    public void writeHandle(String mac, int handle, String value, final Callback<String> callback) {
         SDKService.getInstance().writeHandle(mac, handle, value, callback);
 
-    } public void getNotification(String mac, int handle, String value, final SDKService.Callback<String> callback) {
+    }
+
+    public void getNotification(String mac, int handle, String value, final Callback<String> callback) {
         SDKService.getInstance().writeHandle(mac, handle, value, callback);
     }
 
     /**
-     * 启动服务
-     */
-    public void startService() {
-        Intent service = new Intent(context, SDKService.class);
-        context.startService(service);
-    }
-
-    /**
-     * 停止服务
-     */
-    public void stopService() {
-        context.stopService(new Intent(context, SDKService.class));
-    }
-
-    /**
-     * 添加观察者接收消息提醒
+     * 调试模式,默认开启
      *
-     * @param observer 观察者
+     * @param d 是否调试模式
      */
-    public void addObserver(Observer observer) {
-        SDKService.messenger.addObserver(observer);
+    public void setDebug(boolean d) {
+        debug = d;
     }
 
-    /**
-     * 删除观察者
-     *
-     * @param observer 观察者
-     */
-    public void removeObserver(Observer observer) {
-        SDKService.messenger.deleteObserver(observer);
+    public static void log(String message) {
+        if (debug) {
+            Log.d(TAG, message);
+        }
     }
-
 
 }

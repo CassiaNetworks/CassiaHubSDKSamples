@@ -11,12 +11,11 @@ import android.widget.TextView;
 
 import com.cassianetworks.fall.BaseActivity;
 import com.cassianetworks.fall.R;
-import com.cassianetworks.fall.domain.Callback;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.fall.domain.DeviceHandle;
 import com.cassianetworks.fall.utils.DialogUtils;
 import com.cassianetworks.fall.views.MyListView;
-import com.cassianetworks.sdklibrary.SDKService;
+import com.cassianetworks.sdklibrary.Callback;
 
 import org.xutils.common.util.LogUtil;
 import org.xutils.view.annotation.ContentView;
@@ -55,7 +54,7 @@ public class DeviceActivity extends BaseActivity {
                 DialogUtils.showDefaultYNTipDialog(this, getString(R.string.del_device_dialog_msg), new Runnable() {
                     @Override
                     public void run() {
-                        indicator.disconnect(deviceBdaddr, new SDKService.Callback<Integer>() {
+                        indicator.disconnect(deviceBdaddr, new Callback<Integer>() {
                             @Override
                             public void run(Integer value) {
                                 if (value == 1) {
@@ -117,7 +116,7 @@ public class DeviceActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                indicator.writeHandle(device.getBdaddr(), adapter.getItem(position).handle, "0101", new SDKService.Callback<String>() {
+                indicator.writeHandle(device.getBdaddr(), adapter.getItem(position).handle, "0101", new Callback<String>() {
                     @Override
                     public void run(String value) {
                         LogUtil.d("writeHandle value"+value);
@@ -162,10 +161,10 @@ public class DeviceActivity extends BaseActivity {
                 holder = (HandleViewHolder) convertView.getTag();
             }
             DeviceHandle device = getItem(position);
-            holder.tv_handle.setText(device.handle + "");
-            holder.tv_uuid.setText(device.uuid);
-
-
+            holder.tv_uuid.setText(String.format(getString(R.string.uuid), device.uuid));
+            holder.tv_handle.setText(String.format(getString(R.string.handle), device.handle));
+            holder.tv_properties.setText(String.format(getString(R.string.properties), device.properties));
+            holder.tv_valueHandle.setText(String.format(getString(R.string.valuehandle), device.valueHandle));
             return convertView;
         }
 
@@ -177,5 +176,9 @@ public class DeviceActivity extends BaseActivity {
         private TextView tv_handle;
         @ViewInject(R.id.tv_uuid)
         private TextView tv_uuid;
+        @ViewInject(R.id.tv_properties)
+        private TextView tv_properties;
+        @ViewInject(R.id.tv_valueHandle)
+        private TextView tv_valueHandle;
     }
 }
