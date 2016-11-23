@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:background="#fff"
+    android:orientation="horizontal"
+    android:paddingBottom="37dp"
+    android:paddingTop="37dp"
+    tools:showIn="@layout/activity_device">
+
+    <TextView
+        android:id="@+id/tv_battery"
+        style="@style/device_layout_text"
+        android:gravity="center"
+        android:text="电量" />
+
+    <TextView
+        android:id="@+id/tv_del"
+        style="@style/device_layout_text"
+        android:gravity="center"
+        android:text="解绑" />
+
+    <TextView
+        android:id="@+id/tv_record"
+        style="@style/device_layout_text"
+        android:gravity="center"
+        android:text="记录" />
+
+
+</LinearLayout>

@@ -1,0 +1,34 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
+
+    <TextView
+        android:id="@+id/tv_handle"
+        style="@style/search_result_mac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="11.2233."
+        android:textColor="#000" />
+
+    <TextView
+        android:id="@+id/tv_uuid"
+        style="@style/search_result_mac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="-50" />
+
+    <View style="@style/title_line_view" />
+
+
+</LinearLayout>
+
+

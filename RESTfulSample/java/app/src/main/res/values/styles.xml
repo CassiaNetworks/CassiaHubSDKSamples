@@ -1,0 +1,59 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+    <style name="title_page">
+        <item name="android:textSize">@dimen/size_36</item>
+        <item name="android:textColor">@color/c323232</item>
+    </style>
+
+    <style name="title_page_right">
+        <item name="android:textSize">@dimen/size_30</item>
+        <item name="android:textColor">@drawable/selector_title_done_font</item>
+    </style>
+
+    <style name="title_line_view">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@color/cdedede</item>
+    </style>
+
+    <style name="search_result_name">
+        <item name="android:textSize">@dimen/size_30</item>
+        <item name="android:textColor">@color/c323232</item>
+    </style>
+    <style name="search_result_mac">
+        <item name="android:textSize">@dimen/size_24</item>
+        <item name="android:textColor">@color/c747474</item>
+    </style>
+
+    <style name="device_layout_text">
+        <item name="android:textSize">@dimen/size_28</item>
+        <item name="android:textColor">@color/c323232</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="btn_type">
+        <item name="android:textColor">#333333</item>
+        <item name="android:textSize">@dimen/size_24</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textColorHint">@color/cc1c1c1</item>
+        <item name="android:background">@drawable/button_bg</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_centerHorizontal">true</item>
+
+    </style>
+
+</resources>

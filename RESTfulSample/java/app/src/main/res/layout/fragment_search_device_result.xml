@@ -1,0 +1,28 @@
+<com.cassianetwork.mylibrary.views.DampScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dcv"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fadingEdge="none"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.cassianetwork.mylibrary.views.MyListView
+            android:id="@+id/lv_scan_result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@color/cdedede"
+            android:dividerHeight="1px"
+            android:fastScrollEnabled="false"
+            android:listSelector="@android:color/transparent" />
+
+        <View style="@style/title_line_view" />
+    </LinearLayout>
+
+</com.cassianetwork.mylibrary.views.DampScrollView>

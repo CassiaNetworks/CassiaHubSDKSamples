@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
+
+    <TextView
+        android:id="@+id/tv_name"
+        style="@style/search_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="红外传感器" />
+
+    <TextView
+        android:id="@+id/tv_mac"
+        style="@style/search_result_mac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_name"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="11.2233." />
+
+    <TextView
+        android:id="@+id/tv_rssi"
+        style="@style/search_result_mac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_mac"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="-50" />
+
+
+    <ImageView
+        android:id="@+id/iv_add"
+        android:layout_width="@dimen/search_result_iv_add_wh"
+        android:layout_height="@dimen/search_result_iv_add_wh"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/selector_img_search_result" />
+
+
+</RelativeLayout>
+
+

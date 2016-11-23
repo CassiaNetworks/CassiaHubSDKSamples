@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Fall</string>
+    <string name="has_exist">已经存在了</string>
+    <string name="no_exist">不存在</string>
+    <string name="searching_device">正在搜索设备</string>
+    <string name="search_device_result">搜索结果</string>
+    <string name="no_device_tip">没有设备</string>
+    <string name="my_device">我的设备</string>
+    <string name="clear">清除</string>
+    <string name="del_device_dialog_msg">确认要删除该设备吗?</string>
+    <string name="del_device_fail">删除设备失败</string>
+</resources>

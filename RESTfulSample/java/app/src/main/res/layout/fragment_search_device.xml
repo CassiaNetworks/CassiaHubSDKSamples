@@ -1,0 +1,14 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <com.cassianetworks.mylibrary.views.CircleDotLoadingView
+        android:id="@+id/scan_view"
+        android:layout_width="@dimen/search_activity_progress_wh"
+        android:layout_height="@dimen/search_activity_progress_wh" />
+
+
+</LinearLayout>

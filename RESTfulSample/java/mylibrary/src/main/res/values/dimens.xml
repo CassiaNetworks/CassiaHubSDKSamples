@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="custom_bg_corner">8dp</dimen>
+    <dimen name="customdialog_btn_height">50dp</dimen>
+    <dimen name="size_60">32sp</dimen>
+    <dimen name="size_56">30sp</dimen>
+    <dimen name="size_54">29sp</dimen>
+    <dimen name="size_42">23sp</dimen>
+    <dimen name="size_38">21sp</dimen>
+    <dimen name="size_36">20sp</dimen>
+    <dimen name="size_34">19sp</dimen>
+    <dimen name="size_32">18sp</dimen>
+    <dimen name="size_30">17sp</dimen>
+    <dimen name="size_28">16sp</dimen>
+    <dimen name="size_26">15sp</dimen>
+    <dimen name="size_24">14sp</dimen>
+    <dimen name="size_22">13sp</dimen>
+    <dimen name="size_20">12sp</dimen>
+    <dimen name="customdialog_margin_lr">20dp</dimen>
+    <dimen name="circle_stroke_width">1dp</dimen>
+    <dimen name="loading_dot_size">10dp</dimen>
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg">
+
+    <include
+        android:id="@+id/title"
+        layout="@layout/title_layout_iv_tv_iv" />
+
+    <TextView
+        android:id="@+id/tv_mac"
+        style="@style/search_result_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title"
+        android:layout_marginTop="27dp"
+        android:gravity="center_horizontal"
+        android:text="MAC地址" />
+
+    <ImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_mac"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@null"
+        android:scaleType="center"
+        android:src="@mipmap/device_icon" />
+
+    <com.cassianetworks.mylibrary.views.MyListView
+        android:id="@+id/lv_device_handle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/iv_icon"
+        android:cacheColorHint="@android:color/transparent"
+        android:fastScrollEnabled="false"
+        android:listSelector="@android:color/transparent"
+        android:padding="20dp"
+        android:scrollbars="none"
+        android:verticalSpacing="10dp" />
+
+    <View
+        style="@style/title_line_view"
+        android:layout_above="@+id/bottom" />
+
+    <include
+        android:id="@+id/bottom"
+        layout="@layout/device_layout_bottom" />
+
+</RelativeLayout>
