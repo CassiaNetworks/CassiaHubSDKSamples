@@ -4,8 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/tv"
+        style="@style/title_page"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_height"
+        android:background="#fff"
+        android:gravity="center"
+        android:text="@string/my_device" />
+
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tv" />
 </RelativeLayout>
