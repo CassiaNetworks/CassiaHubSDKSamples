@@ -38,14 +38,12 @@ public class DeviceActivity extends BaseActivity {
 
     @ViewInject(R.id.tv_mac)
     TextView tvMac;
-    @ViewInject(R.id.tv_value)
-    TextView tvValue;
+    @ViewInject(R.id.et_value)
+    TextView etValue;
     @ViewInject(R.id.tv_service)
     TextView tvService;
     @ViewInject(R.id.tv_battery)
     TextView tvBattery;
-    @ViewInject(R.id.iv_icon)
-    ImageView ivIcon;
     @ViewInject(R.id.lv_device_handle)
     MyListView lv_device_handle;
 
@@ -106,7 +104,6 @@ public class DeviceActivity extends BaseActivity {
 
     private void initDeviceInfoView() {
         tvMac.setText(deviceBdaddr + "");
-        ivIcon.setImageResource(R.mipmap.device_icon);
         tvBattery.setText("电量高");
 
     }
@@ -132,7 +129,7 @@ public class DeviceActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                indicator.writeHandle(device.getBdaddr(), adapter.getItem(position).handle, tvValue.getText().toString().trim(), new Callback<String>() {
+                indicator.writeHandle(device.getBdaddr(), adapter.getItem(position).handle, etValue.getText().toString().trim(), new Callback<String>() {
                     @Override
                     public void run(String value) {
                         LogUtil.d("writeHandle value" + value);

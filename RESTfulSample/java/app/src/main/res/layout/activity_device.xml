@@ -28,8 +28,8 @@
         android:text="点击发现服务"
         android:textColor="#f00" />
 
-    <TextView
-        android:id="@+id/tv_value"
+    <EditText
+        android:id="@+id/et_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_service"
@@ -44,7 +44,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/bottom"
-        android:layout_below="@+id/tv_value"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/et_value"
         android:background="@color/bg"
         android:fadingEdge="none"
         android:fillViewport="true"
