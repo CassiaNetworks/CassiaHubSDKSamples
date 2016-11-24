@@ -32,7 +32,20 @@
         <activity
             android:name=".activities.DeviceActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.RecordActivity"
+            android:screenOrientation="portrait" />
 
+        <service
+            android:name=".IndicatorService"
+            android:enabled="true">
+            <intent-filter android:priority="999999999">
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </service>
 
     </application>
 

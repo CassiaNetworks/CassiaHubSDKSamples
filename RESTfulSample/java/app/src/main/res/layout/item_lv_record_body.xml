@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:paddingLeft="14dp"
+    android:paddingRight="14dp">
+
+    <TextView
+        android:id="@+id/tv_time"
+        style="@style/search_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="15:30" />
+
+    <TextView
+        android:id="@+id/tv_value"
+        style="@style/search_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_time"
+        android:gravity="center_vertical"
+        android:text="ec8202000904" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        style="@style/search_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_value"
+        android:gravity="center_vertical"
+        android:text="notify" />
+
+    <TextView
+        android:id="@+id/tv_dataType"
+        style="@style/search_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_name"
+        android:gravity="center_vertical"
+        android:text="notification" />
+
+    <TextView
+        android:id="@+id/tv_handle"
+        style="@style/search_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_dataType"
+        android:gravity="center_vertical"
+        android:text="14" />
+
+
+    <View
+        style="@style/title_line_view"
+        android:layout_below="@+id/tv_handle" />
+
+
+</RelativeLayout>
+
+

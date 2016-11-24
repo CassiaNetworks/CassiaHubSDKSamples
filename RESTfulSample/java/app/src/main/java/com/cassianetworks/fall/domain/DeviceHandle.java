@@ -1,7 +1,5 @@
 package com.cassianetworks.fall.domain;
 
-import static android.R.attr.handle;
-
 /**
  * Created by ZhangMin on 2016/11/22.
  */
@@ -15,7 +13,13 @@ public class DeviceHandle {
     public DeviceHandle() {
     }
 
-    public DeviceHandle(int handle, String uuid,int properties, int valueHandle) {
+    public DeviceHandle(int handle, String uuid) {
+
+        this.handle = handle;
+        this.uuid = uuid;
+    }
+
+    public DeviceHandle(int handle, String uuid, int properties, int valueHandle) {
 
         this.handle = handle;
         this.uuid = uuid;

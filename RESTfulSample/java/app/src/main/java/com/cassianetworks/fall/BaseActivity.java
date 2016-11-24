@@ -6,12 +6,33 @@ import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.Window;
 
+import com.cassianetworks.fall.domain.Device;
+import com.cassianetworks.fall.domain.Record;
 import com.cassianetworks.fall.utils.SysUtils;
+import com.cassianetworks.fall.views.LoadingDialog;
+import com.cassianetworks.sdklibrary.HttpUtils;
+import com.google.gson.Gson;
 
 import org.xutils.common.util.LogUtil;
 import org.xutils.x;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import okhttp3.Response;
+
+import static com.cassianetworks.fall.BaseApplication.deviceManager;
+import static com.cassianetworks.fall.BaseApplication.indicator;
+import static com.cassianetworks.fall.IndicatorService.ACTION_NOTIFICATION_RECEIVE;
+import static com.cassianetworks.fall.IndicatorService.messenger;
+
 public abstract class BaseActivity extends FragmentActivity {
+    protected LoadingDialog loadingDialog;
+    private Object notification;
 
 
     @Override
@@ -19,7 +40,17 @@ public abstract class BaseActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         x.view().inject(this);
+        loadingDialog = new LoadingDialog(this);
+        loadingDialog.setCancelable(false);
         init();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (loadingDialog.isShowing()) loadingDialog.dismiss();
+
     }
 
     /**
@@ -112,6 +143,30 @@ public abstract class BaseActivity extends FragmentActivity {
             }
         });
     }
+
+    public void showLoading() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (!loadingDialog.isShowing()) loadingDialog.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void dismissLoading() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (loadingDialog.isShowing()) loadingDialog.dismiss();
+            }
+        });
+    }
+
+
 
 
 }

@@ -12,6 +12,7 @@ import com.cassianetworks.fall.fragment.main.ShowDeviceFragment;
 import org.xutils.view.annotation.ContentView;
 
 import static com.cassianetworks.fall.BaseApplication.deviceManager;
+import static com.cassianetworks.fall.BaseApplication.indicator;
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends BaseActivity {
@@ -37,4 +38,6 @@ public class MainActivity extends BaseActivity {
         transaction.commit();
 
     }
+
+
 }

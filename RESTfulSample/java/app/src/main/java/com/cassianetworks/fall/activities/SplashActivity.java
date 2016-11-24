@@ -1,5 +1,6 @@
 package com.cassianetworks.fall.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -7,11 +8,10 @@ import android.text.TextUtils;
 
 import com.cassianetworks.fall.BaseActivity;
 import com.cassianetworks.fall.BaseApplication;
+import com.cassianetworks.fall.IndicatorService;
 import com.cassianetworks.fall.R;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.sdklibrary.Callback;
-import com.cassianetworks.sdklibrary.HttpUtils;
-import com.cassianetworks.sdklibrary.SDKService;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -30,6 +30,7 @@ public class SplashActivity extends BaseActivity {
     final Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
+            startIndicatorService();
             openMain(msg.what);
             return false;
         }
@@ -44,39 +45,44 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getConnectList();
-        deviceManager.clearDevList();
+        List<Device> devList = deviceManager.getDevList();
+        devList.clear();
+        List<Device> devices = deviceManager.loadDeviceListPref();
+        if (devices != null)
+            devList.addAll(devices);
+        showLoading();
+
         indicator.oauth("tester", "10b83f9a2e823c47", new Callback<Integer>() {
             @Override
             public void run(Integer value) {
                 LogUtil.d(" oauth " + value);
                 if (value == 1) {
                     LogUtil.d("oauth success");
-                    List<Device> devList = deviceManager.getDevList();
-                    devList.clear();
+//
+                    getConnectList();
 
-                    List<Device> devices = deviceManager.loadDeviceListPref();
-                    if (devices != null)
-                        devList.addAll(devices);
+                } else {
+                    showTips("认证失败");
                 }
-                handler.sendEmptyMessageDelayed(deviceManager.getDevList().size(), 3 * 1000);
             }
         });
-//        HttpUtils.oauth("tester", "10b83f9a2e823c47");
-
-
-
-
 
 
     }
 
+    private void startIndicatorService() {
+        Intent startIntent = new Intent(this, IndicatorService.class);
+        startService(startIntent);
+    }
+
     private void getConnectList() {
-        indicator.connectList( new Callback<String>() {
+        indicator.connectList(new Callback<String>() {
             @Override
             public void run(String value) {
+                dismissLoading();
                 if (TextUtils.isEmpty(value)) {
                     LogUtil.d("connectList fail");
+                    handler.sendEmptyMessageDelayed(deviceManager.getDevList().size(), 2 * 1000);
                 } else {
                     LogUtil.d("connectList success value = " + value);
                     HashMap ret = new Gson().fromJson(value, HashMap.class);
@@ -89,9 +95,22 @@ public class SplashActivity extends BaseActivity {
                         Device dev = new Device();
                         dev.setBdaddr(id);
                         dev.setName(id);
-                        LogUtil.d("deviceManager.device size" + dev.toString());
+                        if (deviceManager.getDevList().size() > 0) {
+                            for (Device d : deviceManager.getDevList()) {
+                                if (!d.getBdaddr().equals(id)) {
+                                    deviceManager.addDevice(dev);
+                                }
+
+                            }
+                        } else {
+                            deviceManager.addDevice(dev);
+                        }
+
+                        LogUtil.d("connectList.device " + dev.toString());
+
 
                     }
+                    handler.sendEmptyMessageDelayed(deviceManager.getDevList().size(), 2 * 1000);
 
 
                 }

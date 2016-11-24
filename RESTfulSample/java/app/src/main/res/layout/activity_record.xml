@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/title"
+        layout="@layout/title_layout_iv_tv_tv" />
+
+    <com.cassianetworks.fall.views.DampScrollView
+        android:id="@+id/dcv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/title"
+        android:background="@color/bg"
+        android:fadingEdge="none"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+
+
+            <com.cassianetworks.fall.views.MyListView
+            android:id="@+id/lv_record"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@null"
+            android:fastScrollEnabled="false"
+            android:listSelector="@android:color/transparent" />
+
+
+
+    </com.cassianetworks.fall.views.DampScrollView>
+
+
+</RelativeLayout>

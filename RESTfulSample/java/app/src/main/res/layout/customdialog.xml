@@ -23,7 +23,7 @@
         android:background="#D1D1D1" />
 
 
-    <com.cassianetworks.mylibrary.views.DampScrollView
+    <com.cassianetworks.fall.views.DampScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -42,7 +42,7 @@
             android:text="@string/tip_exit_app"
             android:textColor="#313131"
             android:textSize="@dimen/size_28" />
-    </com.cassianetworks.mylibrary.views.DampScrollView>
+    </com.cassianetworks.fall.views.DampScrollView>
 
     <View
         android:layout_width="match_parent"

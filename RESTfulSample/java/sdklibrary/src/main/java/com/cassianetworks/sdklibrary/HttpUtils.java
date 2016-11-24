@@ -28,9 +28,7 @@ public class HttpUtils {
     private String access_token;
     static String hubMac = "";
 
-    public void setHubMac(String hubMac) {
-        HttpUtils.hubMac = hubMac;
-    }
+
 
     private static class SingleTonHolder {
         private static final HttpUtils INSTANCE = new HttpUtils();
@@ -51,6 +49,14 @@ public class HttpUtils {
             .build();
     private Call mCall;
 
+    public void setHubMac(String hubMac) {
+        HttpUtils.hubMac = hubMac;
+    }
+
+    public void rebootHub(OkHttpCallback callback) {
+        get(root + "cassia/reboot/", null, callback);
+    }
+
     public void oauth(final Callback<Integer> callback, final String developer, final String pwd) {
         String credential = Credentials.basic(developer, pwd);
         Headers.Builder headersBuilder = new Headers.Builder()
@@ -66,7 +72,6 @@ public class HttpUtils {
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                log("request fail");
                 mCall = call;
                 callback.run(0);
             }
@@ -75,7 +80,6 @@ public class HttpUtils {
             public void onResponse(Call call, final Response response) throws IOException {
                 mCall = call;
                 if (response.isSuccessful()) {
-
                     Reader charStream = response.body().charStream();
                     BufferedReader in = new BufferedReader(charStream);
                     String line;
@@ -121,7 +125,7 @@ public class HttpUtils {
     }
 
     public void disconnect(String mac, OkHttpCallback callback) {
-        delete(root + "gap/nodes/" + mac + "/connection?mac=" + hubMac, null, callback);
+        delete(root + "gap/nodes/" + mac + "/connection?mac=" + hubMac, callback);
     }
 
     public void discoverServices(String mac, OkHttpCallback callback) {
@@ -136,7 +140,7 @@ public class HttpUtils {
         Map<String, String> map = new HashMap<>();
         map.put("mac", hubMac);
         map.put("event", "1");
-        get(root + "gap/nodes/", map, callback);
+        get(root + "gatt/nodes/", map, callback);
     }
 
     public void get(String url, Map<String, String> params, final OkHttpCallback callback) {
@@ -161,8 +165,9 @@ public class HttpUtils {
                     callback.onSuccess(response);
                 } else {
                     callback.onFailure(response.message());
-                    response.body().close();
+
                 }
+                response.body().close();
             }
         });
 
@@ -178,7 +183,7 @@ public class HttpUtils {
 
     }
 
-    public void delete(String url, Map<String, Object> map, final OkHttpCallback callback) {
+    public void delete(String url, final OkHttpCallback callback) {
         Headers.Builder headersBuilder = new Headers.Builder()
                 .add("Authorization", "Bearer " + access_token);
         Headers requestHeaders = headersBuilder.build();
@@ -188,48 +193,7 @@ public class HttpUtils {
             @Override
             public void onFailure(Call call, IOException e) {
                 mCall = call;
-                callback.onFailure(e == null ? "err" : e.getMessage().toString());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                mCall = call;
-                if (response.isSuccessful()) {
-                    callback.onSuccess(response);
-                } else {
-                    callback.onFailure(response.message());
-                }
-                response.body().close();
-
-            }
-        });
-    }
-
-    public void post(String url, Map<String, Object> map, final OkHttpCallback callback) {
-        Headers.Builder headersBuilder = new Headers.Builder()
-                .add("Authorization", "Bearer " + access_token)
-                .add("type", "public")
-                .add("Content-Type  ", "application/json");
-        Headers requestHeaders = headersBuilder.build();
-
-        FormBody.Builder builder = new FormBody.Builder();
-        if (null != map) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                builder.add(entry.getKey(), entry.getValue().toString());
-            }
-        }
-
-        RequestBody body = builder.build();
-
-        Request request = new Request.Builder().url(url).headers(requestHeaders)
-                .post(body).build();
-        callback.onStart();
-
-        client.newCall(request).enqueue(new okhttp3.Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                mCall = call;
-                callback.onFailure(e.getMessage().toString());
+                callback.onFailure(e.getMessage());
             }
 
             @Override
@@ -252,7 +216,6 @@ public class HttpUtils {
         Headers requestHeaders = headersBuilder.build();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, new Gson().toJson(map));
-
         Request request = new Request.Builder().url(url).headers(requestHeaders)
                 .post(body).build();
         callback.onStart();
@@ -261,7 +224,7 @@ public class HttpUtils {
             @Override
             public void onFailure(Call call, IOException e) {
                 mCall = call;
-                callback.onFailure(e.getMessage().toString());
+                callback.onFailure(e.getMessage());
             }
 
             @Override

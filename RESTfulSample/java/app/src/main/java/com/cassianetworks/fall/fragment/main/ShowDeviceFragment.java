@@ -28,7 +28,6 @@ import java.util.List;
 public class ShowDeviceFragment extends BaseFragment {
     private List<Device> devicesList;
     private DeviceAdapter adapter;
-    private Device addIcon;
     @ViewInject(R.id.gv_device)
     MyGridView gvDevice;
     @ViewInject(R.id.iv_add)

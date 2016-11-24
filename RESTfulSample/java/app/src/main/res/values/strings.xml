@@ -21,4 +21,13 @@
     <string name="properties">properties : %1$d</string>
     <string name="handle">handle : %1$d</string>
     <string name="uuid">uuid : %1$s</string>
+    <string name="show_record">历史记录</string>
+    <string name="clear_records_tip">清除历史消息吗</string>
+    <string name="record_time">Time : %1$s</string>
+    <string name="record_value">Value : %1$s</string>
+    <string name="record_name">Name : %1$s</string>
+    <string name="record_dataType">DataType : %1$s</string>
+    <string name="record_handle">Handle : %1$d</string>
+
+
 </resources>

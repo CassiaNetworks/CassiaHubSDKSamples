@@ -7,7 +7,6 @@ import android.content.SharedPreferences.Editor;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.fall.domain.Record;
 import com.cassianetworks.fall.utils.SysUtils;
-import com.cassianetworks.sdklibrary.Callback;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
@@ -41,9 +40,9 @@ public class DeviceManager {
         return scanDevList;
     }
 
-    public void addDevice(Device device) {
-        add(devList, device);
-    }
+//    public void addDevice(Device device) {
+//        add(devList, device);
+//    }
 
     public void addScanDevice(Device device) {
         add(scanDevList, device);
@@ -54,6 +53,7 @@ public class DeviceManager {
             tarList.add(device);
         }
     }
+
     public boolean isNewDevice(Device device) {
         for (int i = 0; i < devList.size(); i++) {
             if (devList.get(i).getBdaddr().equals(device.getBdaddr())) {
@@ -73,46 +73,27 @@ public class DeviceManager {
     }
 
 
-    public void addDevice(final Device device, final Callback<Integer> callback) {
-        if (devList.contains(device)) {
-            SysUtils.showShortTips(R.string.has_exist);
-            if (callback != null) callback.run(-1);
-        } else {
-            LogUtil.d("add a device start:" + device.toString());
-            devList.add(device);
-            BaseApplication.deviceManager.saveDeviceListPref(devList);
-            if (callback != null) callback.run(0);
-
-        }
-
-    }
-
-
     public List<Record> loadRecordListPref(String device_mac) {
         String records_list = loadPref("record_" + device_mac);
         return new Gson().fromJson(records_list, new TypeToken<List<Record>>() {
         }.getType());
     }
 
-    public void refreshDevicesList(boolean add, Device device, Callback<Integer> callback) {
-        if (add) addDevice(device, callback);
-        else delDevice(device, callback);
+    public void addDevice(final Device device) {
+        if (devList.contains(device)) {
+            return;
+        } else {
+            devList.add(device);
+            BaseApplication.deviceManager.saveDeviceListPref(devList);
+        }
+
     }
 
 
-    public void delDevice(final Device device, final Callback<Integer> callback) {
-        if (!devList.contains(device)) {
-            SysUtils.showShortTips(R.string.no_exist);
-            if (callback != null) callback.run(-1);
-        } else {
-            LogUtil.d("del a device :" + device.toString());
-            devList.remove(device);
-            BaseApplication.deviceManager.clearRecordListPref(device.getBdaddr());
-            BaseApplication.deviceManager.saveDeviceListPref(devList);
-            if (callback != null) callback.run(0);
-
-        }
-
+    public void delDevice(final Device device) {
+        devList.remove(device);
+        BaseApplication.deviceManager.clearRecordListPref(device.getBdaddr());
+        BaseApplication.deviceManager.saveDeviceListPref(devList);
 
     }
 
@@ -180,10 +161,12 @@ public class DeviceManager {
         editor.putString("device_list", deviceStr);
         editor.apply();
     }
-    public void clearDevList(){
+
+    public void clearDevList() {
         devList.clear();
     }
-    public void clearScanDevList(){
+
+    public void clearScanDevList() {
         scanDevList.clear();
     }
 
@@ -214,7 +197,7 @@ public class DeviceManager {
         device.setName("CassiaFD_1.2");
         device.setBdaddr((String) bdaddrs.get("bdaddr"));
         device.setScanData((String) result.get("scanData"));
-        device.setRssi((double)result.get("rssi"));
+        device.setRssi((double) result.get("rssi"));
         return device;
 
     }
@@ -227,4 +210,12 @@ public class DeviceManager {
     }
 
 
+    public void saveRecordListPref(String device_mac, List<Record> record_list) {
+        SharedPreferences sp = context.getSharedPreferences("security_config", Context.MODE_PRIVATE);
+        String recordStr = new Gson().toJson(record_list);
+        LogUtil.e("save device record" + recordStr);
+        Editor editor = sp.edit();
+        editor.putString("record_" + device_mac, recordStr);
+        editor.apply();
+    }
 }

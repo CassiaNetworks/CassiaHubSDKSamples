@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <ProgressBar
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_loading_bg"
+        android:clickable="false"
+        android:gravity="center"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateDrawable="@drawable/progress_large"
+        android:indeterminateDuration="350"
+        android:indeterminateOnly="true"
+        android:padding="15dp" />
+</LinearLayout>

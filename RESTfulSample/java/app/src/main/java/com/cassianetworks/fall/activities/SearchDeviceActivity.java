@@ -48,9 +48,11 @@ public class SearchDeviceActivity extends BaseActivity {
         final ScanResultAdapter adapter = new ScanResultAdapter();
         lvScanResult.setAdapter(adapter);
         deviceManager.clearScanDevList();
+        showLoading();
         indicator.scan(10000, new HttpUtils.OkHttpCallback() {
             @Override
             protected void onSuccess(final Response response) {
+                dismissLoading();
 
                 Reader charStream = response.body().charStream();
                 BufferedReader in = new BufferedReader(charStream);
@@ -84,7 +86,7 @@ public class SearchDeviceActivity extends BaseActivity {
 
             @Override
             protected void onFailure(String msg) {
-
+                dismissLoading();
             }
         });
     }
@@ -134,75 +136,68 @@ public class SearchDeviceActivity extends BaseActivity {
             ivAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (ivAdd.isSelected()) {
+                        showTips("该设备已连接");
+                        return;
+                    }
 
+                    showLoading();
+                    ivAdd.setSelected(true);
                     indicator.connect(mac, new Callback<Integer>() {
                         @Override
                         public void run(Integer value) {
-                            LogUtil.d("test search connect value" + value);
-                            if (value == 1) {
-
-                                indicator.discoverServices(mac, new Callback<String>() {
-                                    @Override
-                                    public void run(String value) {
-                                        if (!TextUtils.isEmpty(value)) {
-
-                                            LogUtil.d("test discover service data " + value);
-                                            HashMap ret = new Gson().fromJson(value, HashMap.class);
-                                            ArrayList services = (ArrayList) ret.get("services");
-                                            for (int i = 0; i < services.size(); i++) {
-                                                LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) services.get(i);
-                                                int startHandle = ((Double) map.get("startHandle")).intValue();
-                                                int endHandle = ((Double) map.get("endHandle")).intValue();
-                                                String uuid = (String) map.get("uuid");
-
-                                                ArrayList characteristics = (ArrayList) map.get("characteristics");
-                                                if (characteristics != null)
-                                                    for (int j = 0; j < characteristics.size(); j++) {
-                                                        LinkedTreeMap<String, Object> c = (LinkedTreeMap<String, Object>) characteristics.get(j);
-                                                        int handle = ((Double) c.get("handle")).intValue();
-                                                        String cuuid = (String) c.get("uuid");
-                                                        int properties = ((Double) c.get("properties")).intValue();
-                                                        int valueHandle = ((Double) c.get("valueHandle")).intValue();
-                                                        device.getHandleList().add(new DeviceHandle(handle, cuuid,properties,valueHandle));
-                                                    }
-
-                                            }
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    deviceManager.refreshDevicesList(true, device, new Callback<Integer>() {
-                                                        @Override
-                                                        public void run(Integer value) {
-                                                        }
-                                                    });
-                                                }
-                                            });
-
-                                        } else {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    ivAdd.setSelected(!ivAdd.isSelected());
-                                                }
-                                            });
-
-                                        }
-
-                                    }
-                                });
-                            } else {
-                                LogUtil.d("test connect device fail value" + value);
+                            LogUtil.d("connect device value" + value);
+                            if (value == 1) getDeviceServices(mac, device);
+                            else {
+                                dismissLoading();
+                                LogUtil.d("connect device fail ");
+                                ivAdd.setSelected(false);
                             }
                         }
                     });
 
-                    ivAdd.setSelected(!ivAdd.isSelected());
+
                 }
             });
             return convertView;
         }
 
 
+    }
+
+    private void getDeviceServices(String mac, final Device device) {
+        indicator.discoverServices(mac, new Callback<String>() {
+            @Override
+            public void run(String value) {
+                dismissLoading();
+                if (!TextUtils.isEmpty(value)) {
+                    //发现服务成功
+                    LogUtil.d("test discover service data " + value);
+                    HashMap ret = new Gson().fromJson(value, HashMap.class);
+                    ArrayList services = (ArrayList) ret.get("services");
+                    for (int i = 0; i < services.size(); i++) {
+                        LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) services.get(i);
+                        int startHandle = ((Double) map.get("startHandle")).intValue();
+                        int endHandle = ((Double) map.get("endHandle")).intValue();
+                        String uuid = (String) map.get("uuid");
+
+                        ArrayList characteristics = (ArrayList) map.get("characteristics");
+                        if (characteristics != null)
+                            for (int j = 0; j < characteristics.size(); j++) {
+                                LinkedTreeMap<String, Object> c = (LinkedTreeMap<String, Object>) characteristics.get(j);
+                                int handle = ((Double) c.get("handle")).intValue();
+                                String cuuid = (String) c.get("uuid");
+                                int properties = ((Double) c.get("properties")).intValue();
+                                int valueHandle = ((Double) c.get("valueHandle")).intValue();
+                                device.getHandleList().add(new DeviceHandle(handle, cuuid, properties, valueHandle));
+                            }
+
+                    }
+                    deviceManager.addDevice(device);
+                }
+
+            }
+        });
     }
 
 }

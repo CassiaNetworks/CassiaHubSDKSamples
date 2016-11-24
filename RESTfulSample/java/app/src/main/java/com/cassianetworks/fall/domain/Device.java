@@ -14,7 +14,7 @@ public class Device {
     private double rssi;
 
     public ArrayList<DeviceHandle> getHandleList() {
-        return handleList;
+        return handleList == null ? new ArrayList<DeviceHandle>() : handleList;
     }
 
     public void setHandleList(ArrayList<DeviceHandle> handleList) {
@@ -29,6 +29,16 @@ public class Device {
 
     public Device() {
     }
+
+    /**
+     * @param name   name
+     * @param bdaddr mac
+     */
+    public Device(String name, String bdaddr) {
+        this.bdaddr = bdaddr;
+        this.name = name;
+    }
+
 
     public Device(String name, String bdaddr, double rssi, String scanData) {
         this.bdaddr = bdaddr;
@@ -51,17 +61,13 @@ public class Device {
 
         Device device = (Device) o;
 
-        if (getBdaddr() != null ? !getBdaddr().equals(device.getBdaddr()) : device.getBdaddr() != null)
-            return false;
-        return getScanData() != null ? getScanData().equals(device.getScanData()) : device.getScanData() == null;
+        return getBdaddr() != null ? getBdaddr().equals(device.getBdaddr()) : device.getBdaddr() == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = getBdaddr() != null ? getBdaddr().hashCode() : 0;
-        result = 31 * result + (getScanData() != null ? getScanData().hashCode() : 0);
-        return result;
+        return getBdaddr() != null ? getBdaddr().hashCode() : 0;
     }
 
     public String getBdaddr() {
@@ -92,8 +98,6 @@ public class Device {
     public String toString() {
         return new Gson().toJson(this);
     }
-
-
 
 
 }

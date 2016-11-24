@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="38dp"
+    android:background="@color/cf5f5f5"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_data"
+        style="@style/search_result_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:text="2016-08-10" />
+
+    <View style="@style/title_line_view" />
+
+
+</LinearLayout>
+
+

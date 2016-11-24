@@ -120,6 +120,28 @@ public class Indicator {
 
     }
 
+    public void getNotification(HttpUtils.OkHttpCallback callback) {
+        HttpUtils.getInstance().getNotification(callback);
+
+    }
+
+    /**
+     * 关闭接收通知
+     */
+    public void closeNotification() {
+        HttpUtils.getInstance().removeRequest();
+
+    }
+
+    /**
+     * 重启HUB
+     *
+     * @param callback {"ok":重启成功;"err+错误信息":重启失败}
+     */
+    public void rebootHub(Callback<String> callback) {
+        SDKService.getInstance().rebootHub(callback);
+    }
+
     /**
      * 调试模式,默认开启
      *

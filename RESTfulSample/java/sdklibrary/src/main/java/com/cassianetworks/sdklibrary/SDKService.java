@@ -122,6 +122,20 @@ public class SDKService {
         HttpUtils.getInstance().getNotification(callback);
     }
 
+    public void rebootHub(final Callback<String> callback) {
+        HttpUtils.getInstance().rebootHub(new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Response response) {
+                callback.run("ok");
+            }
+
+            @Override
+            protected void onFailure(String msg) {
+                callback.run("err:" + msg);
+            }
+        });
+    }
+
 
     private static class SingleTonHolder {
         private static final SDKService INSTANCE = new SDKService();
@@ -153,6 +167,7 @@ public class SDKService {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    callback.run("");
                 } finally {
                     response.close();
                     try {
