@@ -3,8 +3,6 @@ package com.cassianetworks.sdklibrary;
 
 import android.util.Log;
 
-import static com.cassianetworks.sdklibrary.HttpUtils.hubMac;
-
 
 public class Indicator {
     private static boolean debug = true;
@@ -16,7 +14,7 @@ public class Indicator {
      * @param mac HUB的mac地址
      */
     public Indicator(String mac) {
-        hubMac = mac;
+        HttpUtils.getInstance().setHubMac(mac);
     }
 
     /**
@@ -27,13 +25,14 @@ public class Indicator {
      * @param callback  {1:success,0:fail}
      */
     public void oauth(String developer, String pwd, final Callback<Integer> callback) {
-        HttpUtils.oauth(callback, developer, pwd);
+        HttpUtils.getInstance().oauth(callback, developer, pwd);
     }
 
     /**
      * 开始扫描
      *
      * @param milliseconds 扫描时间 如果milliseconds == -1 表示不停止扫描
+     * @param callback     扫描的返回结果
      */
     public void scan(final int milliseconds, HttpUtils.OkHttpCallback callback) {
         SDKService.getInstance().scan(milliseconds, callback);
@@ -43,7 +42,7 @@ public class Indicator {
      * 停止扫描
      */
     public void stopScan() {
-        SDKService.getInstance().stopScan();
+        HttpUtils.getInstance().removeRequest();
     }
 
 
@@ -72,7 +71,8 @@ public class Indicator {
     /**
      * 解绑设备
      *
-     * @param mac 设备地址
+     * @param mac      设备地址
+     * @param callback {1:success,0:fail}
      */
     public void disconnect(String mac, final Callback<Integer> callback) {
         SDKService.getInstance().disconnect(mac, callback);
@@ -118,10 +118,6 @@ public class Indicator {
     public void writeHandle(String mac, int handle, String value, final Callback<String> callback) {
         SDKService.getInstance().writeHandle(mac, handle, value, callback);
 
-    }
-
-    public void getNotification(String mac, int handle, String value, final Callback<String> callback) {
-        SDKService.getInstance().writeHandle(mac, handle, value, callback);
     }
 
     /**

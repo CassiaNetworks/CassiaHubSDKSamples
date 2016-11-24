@@ -16,7 +16,7 @@ public class SDKService {
 
 
     public void connect(String mac, String chip, final Callback<Integer> callback) {
-        HttpUtils.connect(mac, chip, new OkHttpCallback() {
+        HttpUtils.getInstance().connect(mac, chip, new OkHttpCallback() {
             @Override
             protected void onSuccess(Response response) {
                 log("--connect success ");
@@ -32,7 +32,7 @@ public class SDKService {
     }
 
     public void writeHandle(String mac, int handle, String value, final Callback<String> callback) {
-        HttpUtils.writeHandle(mac, handle, value, new OkHttpCallback() {
+        HttpUtils.getInstance().writeHandle(mac, handle, value, new OkHttpCallback() {
             @Override
             protected void onSuccess(Response response) {
                 log("--writeHandle success ");
@@ -48,7 +48,7 @@ public class SDKService {
     }
 
     public void connectList(String connection_state, final Callback<String> callback) {
-        HttpUtils.connectList(connection_state, new OkHttpCallback() {
+        HttpUtils.getInstance().connectList(connection_state, new OkHttpCallback() {
             @Override
             protected void onSuccess(final Response response) {
                 log("--connectList success ");
@@ -65,7 +65,7 @@ public class SDKService {
 
 
     public void disconnect(String mac, final Callback<Integer> callback) {
-        HttpUtils.disconnect(mac, new OkHttpCallback() {
+        HttpUtils.getInstance().disconnect(mac, new OkHttpCallback() {
             @Override
             protected void onSuccess(Response response) {
                 log("--disconnect device success ");
@@ -81,7 +81,7 @@ public class SDKService {
     }
 
     public void discoverServices(String mac, final Callback<String> callback) {
-        HttpUtils.discoverServices(mac, new OkHttpCallback() {
+        HttpUtils.getInstance().discoverServices(mac, new OkHttpCallback() {
             @Override
             protected void onSuccess(final Response response) {
                 log("--discoverServices success ");
@@ -109,13 +109,17 @@ public class SDKService {
                 }
             }, milliseconds);
         }
-        HttpUtils.scan(callback);
+        HttpUtils.getInstance().scan(callback);
 
     }
 
     public void stopScan() {
         log("stop scan");
-        HttpUtils.removeRequest();
+        HttpUtils.getInstance().removeRequest();
+    }
+
+    public void getNotification(OkHttpCallback callback) {
+        HttpUtils.getInstance().getNotification(callback);
     }
 
 
@@ -127,7 +131,7 @@ public class SDKService {
         return SingleTonHolder.INSTANCE;
     }
 
-    public SDKService() {
+    private SDKService() {
 
     }
 

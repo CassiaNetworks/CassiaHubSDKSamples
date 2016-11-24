@@ -71,7 +71,6 @@ public class SearchDeviceActivity extends BaseActivity {
                                 public void run() {
                                     device = new Device(name, bdaddr, rssi, scanData);
                                     deviceManager.addScanDevice(device);
-
                                     adapter.notifyDataSetChanged();
                                 }
                             });
