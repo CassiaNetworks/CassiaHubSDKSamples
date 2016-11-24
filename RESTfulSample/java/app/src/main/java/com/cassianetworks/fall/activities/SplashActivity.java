@@ -52,17 +52,16 @@ public class SplashActivity extends BaseActivity {
             devList.addAll(devices);
         showLoading();
 
-        indicator.oauth("tester", "10b83f9a2e823c47", new Callback<Integer>() {
+        indicator.oauth("tester", "10b83f9a2e823c47", new Callback<String>() {
             @Override
-            public void run(Integer value) {
+            public void run(String value) {
                 LogUtil.d(" oauth " + value);
-                if (value == 1) {
+                if (value.equals("ok")) {
                     LogUtil.d("oauth success");
-//
                     getConnectList();
 
                 } else {
-                    showTips("认证失败");
+                    showTips(value);
                 }
             }
         });
@@ -80,8 +79,8 @@ public class SplashActivity extends BaseActivity {
             @Override
             public void run(String value) {
                 dismissLoading();
-                if (TextUtils.isEmpty(value)) {
-                    LogUtil.d("connectList fail");
+                if (value.contains("err:")) {
+                    LogUtil.d("connectList fail"+value);
                     handler.sendEmptyMessageDelayed(deviceManager.getDevList().size(), 2 * 1000);
                 } else {
                     LogUtil.d("connectList success value = " + value);
@@ -89,9 +88,9 @@ public class SplashActivity extends BaseActivity {
                     ArrayList nodes = (ArrayList) ret.get("nodes");
                     for (int i = 0; i < nodes.size(); i++) {
                         LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) nodes.get(i);
-                        String handle = (String) map.get("handle");
+//                        String handle = (String) map.get("handle");
                         String id = (String) map.get("id");
-                        String connectionState = (String) map.get("connectionState");
+//                        String connectionState = (String) map.get("connectionState");
                         Device dev = new Device();
                         dev.setBdaddr(id);
                         dev.setName(id);

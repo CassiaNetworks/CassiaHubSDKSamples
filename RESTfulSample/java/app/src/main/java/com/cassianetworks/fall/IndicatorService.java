@@ -109,9 +109,7 @@ public class IndicatorService extends Service {
                         Device tem = new Device(name, id);
                         if (!deviceManager.getDevList().contains(tem))
                             continue;
-                        int handle = -1;
-                        if (result.containsKey("handle"))
-                            handle = ((Double) result.get("handle")).intValue();
+                        int handle = ((Double) result.get("handle")).intValue();
 
                         List<Record> records = BaseApplication.deviceManager.loadRecordListPref(id);
                         String time = SysUtils.getCurData();
@@ -119,19 +117,21 @@ public class IndicatorService extends Service {
                         if (records == null) {
                             records = new ArrayList<>();
                             records.add(new Record(0, value, name, dataType, id, handle, time.split(" ")[0] + " 23:59:59"));
+                            broadcast(id, records);
                         }
                         if (records.size() > 1) {
                             if (!records.get(records.size() - 1).getTime().split(" ")[0].equals(time.split(" ")[0])) {
                                 records.add(new Record(0, value, name, dataType, id, handle, time.split(" ")[0] + " 23:59:59"));
+                                broadcast(id, records);
                             }
+
                         }
 
                         if (!records.get(records.size() - 1).getValue().equals(value)) {
                             records.add(new Record(1, value, name, dataType, id, handle, time));
+                            broadcast(id, records);
                         }
 
-                        BaseApplication.deviceManager.saveRecordListPref(id, records);
-                        broadcastUpdate(new Intent(ACTION_NOTIFICATION_RECEIVE));
 
                     }
                 } catch (IOException e) {
@@ -142,9 +142,14 @@ public class IndicatorService extends Service {
 
             @Override
             protected void onFailure(String msg) {
-                LogUtil.e("get Notification fail");
+                LogUtil.e("get Notification fail" + msg);
             }
         });
+    }
+
+    private void broadcast(String id, List<Record> records) {
+        BaseApplication.deviceManager.saveRecordListPref(id, records);
+        broadcastUpdate(new Intent(ACTION_NOTIFICATION_RECEIVE));
     }
 
 }

@@ -2,7 +2,6 @@ package com.cassianetworks.fall.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
@@ -40,19 +39,20 @@ public class RecordActivity extends BaseActivity {
     TextView tv_page_name;
     @ViewInject(R.id.lv_record)
     ListView lvRecord;
-    private Handler handler;
     private Observer observer;
 
 
     @Override
     protected void init() {
-        handler = new Handler();
         comparator = new RecordTimeLowToHighComparator();
         Bundle bundle = getIntent().getExtras();
         deviceMac = bundle.getString("device_mac");
         tv_page_name.setText(R.string.show_record);
         adapter = new RecordAdapter(this);
         lvRecord.setAdapter(adapter);
+        getData();
+        adapter.refreshData(recordsData);
+        adapter.notifyDataSetChanged();
         observer = new Observer() {
             @Override
             public void update(Observable observable, final Object data) {

@@ -87,6 +87,7 @@ public class SearchDeviceActivity extends BaseActivity {
             @Override
             protected void onFailure(String msg) {
                 dismissLoading();
+                LogUtil.d("scan fail.err" + msg);
             }
         });
     }
@@ -143,14 +144,15 @@ public class SearchDeviceActivity extends BaseActivity {
 
                     showLoading();
                     ivAdd.setSelected(true);
-                    indicator.connect(mac, new Callback<Integer>() {
+                    indicator.connect(mac, new Callback<String>() {
                         @Override
-                        public void run(Integer value) {
+                        public void run(String value) {
                             LogUtil.d("connect device value" + value);
-                            if (value == 1) getDeviceServices(mac, device);
+                            if (value.equals("ok")) getDeviceServices(mac, device);
                             else {
                                 dismissLoading();
-                                LogUtil.d("connect device fail ");
+                                LogUtil.d("connect device fail " + value);
+                                showTips(value);
                                 ivAdd.setSelected(false);
                             }
                         }

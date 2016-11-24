@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cassianetworks.fall.BaseActivity;
@@ -64,10 +63,12 @@ public class DeviceActivity extends BaseActivity {
                 DialogUtils.showDefaultYNTipDialog(this, getString(R.string.del_device_dialog_msg), new Runnable() {
                     @Override
                     public void run() {
-                        indicator.disconnect(deviceBdaddr, new Callback<Integer>() {
+                        showLoading();
+                        indicator.disconnect(deviceBdaddr, new Callback<String>() {
                             @Override
-                            public void run(Integer value) {
-                                if (value == 1) {
+                            public void run(String value) {
+                                dismissLoading();
+                                if (value.equals("ok")) {
                                     LogUtil.d("disconnect device success");
                                     deviceManager.delDevice(device);
                                     if (MainActivity.instance != null)
@@ -75,7 +76,8 @@ public class DeviceActivity extends BaseActivity {
                                     startActivity(MainActivity.class);
                                     finish();
                                 } else {
-                                    LogUtil.d("disconnect device fail");
+                                    LogUtil.d("disconnect device fail" + value);
+                                    showTips(value);
 
                                 }
                             }
@@ -96,16 +98,13 @@ public class DeviceActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 查看历史通知
+     */
     private void showRecord() {
         Bundle bundle = new Bundle();
         bundle.putString("device_mac", device.getBdaddr());
         startActivity(RecordActivity.class, bundle);
-    }
-
-    private void initDeviceInfoView() {
-        tvMac.setText(deviceBdaddr + "");
-        tvBattery.setText("电量高");
-
     }
 
     @Override
@@ -122,9 +121,11 @@ public class DeviceActivity extends BaseActivity {
         } else {
             tvService.setVisibility(View.GONE);
         }
-        initDeviceInfoView();
+        tvMac.setText(deviceBdaddr);
+        tvBattery.setText("电量高");
         adapter = new HandleAdapter();
         lv_device_handle.setAdapter(adapter);
+        //将当前item的handle设置为输入框的美瞳
         lv_device_handle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -133,6 +134,7 @@ public class DeviceActivity extends BaseActivity {
                     @Override
                     public void run(String value) {
                         LogUtil.d("writeHandle value" + value);
+                        showTips(value);
                     }
                 });
 
@@ -195,6 +197,9 @@ public class DeviceActivity extends BaseActivity {
         private TextView tv_valueHandle;
     }
 
+    /**
+     * 发现所有的服务
+     */
     private void getDeviceServices() {
         showLoading();
         final Device temDev = new Device(device.getName(), device.getBdaddr());
@@ -204,15 +209,15 @@ public class DeviceActivity extends BaseActivity {
             public void run(String value) {
                 dismissLoading();
                 if (!TextUtils.isEmpty(value)) {
-                    //发现服务成功
                     LogUtil.d("test discover service data " + value);
                     HashMap ret = new Gson().fromJson(value, HashMap.class);
                     ArrayList services = (ArrayList) ret.get("services");
                     for (int i = 0; i < services.size(); i++) {
                         LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) services.get(i);
-                        int startHandle = ((Double) map.get("startHandle")).intValue();
-                        int endHandle = ((Double) map.get("endHandle")).intValue();
-                        String uuid = (String) map.get("uuid");
+                        //暂时不用
+//                        int startHandle = ((Double) map.get("startHandle")).intValue();
+//                        int endHandle = ((Double) map.get("endHandle")).intValue();
+//                        String uuid = (String) map.get("uuid");
 
                         ArrayList characteristics = (ArrayList) map.get("characteristics");
                         if (characteristics != null) {

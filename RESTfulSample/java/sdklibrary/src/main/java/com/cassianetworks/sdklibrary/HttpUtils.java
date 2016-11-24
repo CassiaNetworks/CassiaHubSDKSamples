@@ -29,7 +29,6 @@ public class HttpUtils {
     static String hubMac = "";
 
 
-
     private static class SingleTonHolder {
         private static final HttpUtils INSTANCE = new HttpUtils();
     }
@@ -57,7 +56,7 @@ public class HttpUtils {
         get(root + "cassia/reboot/", null, callback);
     }
 
-    public void oauth(final Callback<Integer> callback, final String developer, final String pwd) {
+    public void oauth(final Callback<String> callback, final String developer, final String pwd) {
         String credential = Credentials.basic(developer, pwd);
         Headers.Builder headersBuilder = new Headers.Builder()
                 .add("Authorization", credential);
@@ -73,7 +72,7 @@ public class HttpUtils {
             @Override
             public void onFailure(Call call, IOException e) {
                 mCall = call;
-                callback.run(0);
+                callback.run("err:" + e.getMessage());
             }
 
             @Override
@@ -88,14 +87,14 @@ public class HttpUtils {
                             HashMap result = new Gson().fromJson(line, HashMap.class);
                             access_token = (String) result.get("access_token");
                             log("success access_token=" + access_token);
-                            callback.run(1);
+                            callback.run("ok");
                         }
                     } catch (IOException e) {
-                        callback.run(0);
+                        callback.run("err:" + e.getMessage());
                         e.printStackTrace();
                     }
                 } else {
-                    callback.run(0);
+                    callback.run("err:" + response.message());
                 }
                 response.body().close();
             }

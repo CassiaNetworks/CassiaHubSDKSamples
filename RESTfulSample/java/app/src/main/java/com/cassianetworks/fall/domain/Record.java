@@ -6,11 +6,16 @@ import java.io.Serializable;
  * Created by ZhangMin on 2016/8/16.
  */
 public class Record implements Serializable {
+    /**
+     * 用于区分记录类型
+     * 0:header
+     * 1:body
+     */
     private int type;
     private String value;
     private String name;
-    private String dataType;
-    private String id;
+    private String dataType;// indication/notification
+    private String id;//mac
     private int handle;
 
     /**
@@ -22,7 +27,7 @@ public class Record implements Serializable {
      * @param handle
      * @param time
      */
-    public Record(int type,String value, String name, String dataType, String id, int handle, String time) {
+    public Record(int type, String value, String name, String dataType, String id, int handle, String time) {
         this.type = type;
         this.value = value;
         this.name = name;
@@ -31,7 +36,8 @@ public class Record implements Serializable {
         this.handle = handle;
         this.time = time;
     }
-    public Record(int type,String time) {
+
+    public Record(int type, String time) {
         this.type = type;
         this.time = time;
     }

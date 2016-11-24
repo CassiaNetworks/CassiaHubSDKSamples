@@ -15,18 +15,18 @@ import static com.cassianetworks.sdklibrary.Indicator.log;
 public class SDKService {
 
 
-    public void connect(String mac, String chip, final Callback<Integer> callback) {
+    public void connect(String mac, String chip, final Callback<String> callback) {
         HttpUtils.getInstance().connect(mac, chip, new OkHttpCallback() {
             @Override
             protected void onSuccess(Response response) {
                 log("--connect success ");
-                callback.run(1);
+                callback.run("ok");
             }
 
             @Override
             public void onFailure(String msg) {
                 log("--connect fail " + msg);
-                callback.run(0);
+                callback.run("err:" + msg);
             }
         });
     }
@@ -36,13 +36,13 @@ public class SDKService {
             @Override
             protected void onSuccess(Response response) {
                 log("--writeHandle success ");
-                callback.run("1");
+                callback.run("ok");
             }
 
             @Override
             public void onFailure(String msg) {
                 log("--writeHandle fail " + msg);
-                callback.run("0");
+                callback.run("err:" + msg);
             }
         });
     }
@@ -58,24 +58,24 @@ public class SDKService {
             @Override
             public void onFailure(String msg) {
                 log("--connectList fail " + msg);
-                callback.run("");
+                callback.run("err:" + msg);
             }
         });
     }
 
 
-    public void disconnect(String mac, final Callback<Integer> callback) {
+    public void disconnect(String mac, final Callback<String> callback) {
         HttpUtils.getInstance().disconnect(mac, new OkHttpCallback() {
             @Override
             protected void onSuccess(Response response) {
                 log("--disconnect device success ");
-                callback.run(1);
+                callback.run("ok");
             }
 
             @Override
             public void onFailure(String msg) {
                 log("--disconnect device fail " + msg);
-                callback.run(0);
+                callback.run("err:" + msg);
             }
         });
     }
@@ -91,7 +91,7 @@ public class SDKService {
             @Override
             public void onFailure(String msg) {
                 log("--discoverServices fail " + msg);
-                callback.run("");
+                callback.run("err:"+msg);
             }
         });
     }
@@ -167,7 +167,7 @@ public class SDKService {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    callback.run("");
+                    callback.run("err:" + e.getMessage());
                 } finally {
                     response.close();
                     try {
