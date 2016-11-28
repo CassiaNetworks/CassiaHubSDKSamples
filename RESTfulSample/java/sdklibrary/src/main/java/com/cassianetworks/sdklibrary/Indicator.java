@@ -1,20 +1,33 @@
 package com.cassianetworks.sdklibrary;
 
-
 import android.util.Log;
 
+import com.cassianetworks.sdklibrary.HttpUtils.OkHttpCallback;
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class Indicator {
+
     private static boolean debug = true;
     private final static String TAG = "CassiaIndicator";
+    private String hubMac = "";
+    private Call scanCall = null;
+    private Call notificationCall = null;
 
-    /**
-     * 初始化Indicator
-     *
-     * @param mac HUB的mac地址
-     */
-    public Indicator(String mac) {
-        HttpUtils.getInstance().setHubMac(mac);
+    public Indicator(String hubMac) throws Exception {
+        if (hubMac == null || "".equals(hubMac)) {
+            throw new Exception("hub mac is invalid");
+        }
+        this.hubMac = hubMac;
+
     }
 
     /**
@@ -22,89 +35,66 @@ public class Indicator {
      *
      * @param developer 开发者帐号
      * @param pwd       开发者密码
-     * @param callback  {"ok":认证成功;"err:错误信息":认证失败}
+     * @param callback
      */
     public void oauth(String developer, String pwd, final Callback<String> callback) {
-        HttpUtils.getInstance().oauth(callback, developer, pwd);
-    }
+        HttpUtils.getInstance().oauth(developer, pwd, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, Response response) {
+                formatResponse(response, callback);
+                Reader charStream = response.body().charStream();
+                BufferedReader in = new BufferedReader(charStream);
+                String line;
+                try {
+                    while ((line = in.readLine()) != null) {
+                        HashMap result = new Gson().fromJson(line, HashMap.class);
+                        HttpUtils.getInstance().setAccess_token((String) result.get("access_token"));
+                        callback.run(true, "ok");
+                    }
+                } catch (Exception e) {
+                    callback.run(false, e.getMessage());
+                    e.printStackTrace();
+                }
+            }
 
-    /**
-     * 开始扫描
-     *
-     * @param milliseconds 扫描时间 如果milliseconds == -1 表示不停止扫描
-     * @param callback     扫描的返回结果
-     */
-    public void scan(final int milliseconds, HttpUtils.OkHttpCallback callback) {
-        SDKService.getInstance().scan(milliseconds, callback);
+            @Override
+            protected void onFailure(String msg) {
+                callback.run(false, msg);
+            }
+        });
     }
-
-    /**
-     * 停止扫描
-     */
-    public void stopScan() {
-        HttpUtils.getInstance().removeRequest();
-    }
-
 
     /**
      * 连接设备
      *
      * @param mac      设备的MAC地址
      * @param chip     HUB的芯片 {0,1}
-     * @param callback {"ok":连接成功;"err:错误信息":连接失败}
+     * @param callback
      */
     public void connect(String mac, String chip, final Callback<String> callback) {
-        SDKService.getInstance().connect(mac, chip, callback);
-    }
+        HttpUtils.getInstance().connect(mac, chip, hubMac, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, Response response) {
+                log("--connect success ");
+                callback.run(true, "ok");
+            }
 
+            @Override
+            public void onFailure(String msg) {
+                log("--connect fail " + msg);
+                callback.run(false, msg);
+            }
+        });
+    }
 
     /**
      * 在芯片1上连接设备
      *
      * @param mac      设备的MAC地址
-     * @param callback {"ok":连接成功;"err:错误信息":连接失败}
+     * @param callback
      */
     public void connect(String mac, final Callback<String> callback) {
         connect(mac, "1", callback);
-    }
-
-    /**
-     * 解绑设备
-     *
-     * @param mac      设备地址
-     * @param callback {"ok":解绑成功;"err:错误信息":解绑失败}
-     */
-    public void disconnect(String mac, final Callback<String> callback) {
-        SDKService.getInstance().disconnect(mac, callback);
-    }
-
-    /**
-     * 获取HUB指定连接状态的设备集合
-     *
-     * @param connection_state 设备的连接状态 {connected:已连接,disconnected:未连接}
-     * @param callback         {"设备列表":获取列表的json串;"err:错误信息":获取列表失败}
-     */
-    public void connectList(String connection_state, final Callback<String> callback) {
-        SDKService.getInstance().connectList(connection_state, callback);
-    }
-
-    /**
-     * 获取hub已连接设备列表
-     *
-     * @param callback {"设备列表":获取列表的json串;"err:错误信息":获取列表失败}
-     */
-    public void connectList(final Callback<String> callback) {
-        connectList("connected", callback);
-    }
-
-    /**
-     * 发现设备的服务
-     *
-     * @param mac      设备的mac地址
-     * @param callback {"服务列表":设备服务集合的json字符串;"err:错误信息":获取服务失败}
-     */
-    public void discoverServices(String mac, final Callback<String> callback) {
-        SDKService.getInstance().discoverServices(mac, callback);
     }
 
     /**
@@ -113,15 +103,161 @@ public class Indicator {
      * @param mac      设备的MAC地址
      * @param handle   handle的id
      * @param value    handle的值
-     * @param callback {"ok":写入成功;"err:错误信息":写入失败}
+     * @param callback
      */
     public void writeHandle(String mac, int handle, String value, final Callback<String> callback) {
-        SDKService.getInstance().writeHandle(mac, handle, value, callback);
+        HttpUtils.getInstance().writeHandle(mac, handle, value, hubMac, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, Response response) {
+                log("--writeHandle success ");
+                callback.run(true, "ok");
+            }
+
+            @Override
+            public void onFailure(String msg) {
+                log("--writeHandle fail " + msg);
+                callback.run(false, msg);
+            }
+        });
+    }
+
+    /**
+     * 获取HUB指定连接状态的设备集合
+     *
+     * @param connection_state 设备的连接状态 {connected:已连接,disconnected:未连接}
+     * @param callback
+     */
+    public void connectList(String connection_state, final Callback<String> callback) {
+        HttpUtils.getInstance().connectList(connection_state, hubMac, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, final Response response) {
+                log("--connectList success ");
+                formatResponse(response, callback);
+            }
+
+            @Override
+            public void onFailure(String msg) {
+                log("--connectList fail " + msg);
+                callback.run(true, msg);
+            }
+        });
+    }
+
+    /**
+     * 获取hub已连接设备列表
+     *
+     * @param callback
+     */
+    public void connectList(final Callback<String> callback) {
+        connectList("connected", callback);
+    }
+
+    /**
+     * 解绑设备
+     *
+     * @param mac      设备地址
+     * @param callback
+     */
+
+    public void disconnect(String mac, final Callback<String> callback) {
+        HttpUtils.getInstance().disconnect(mac, hubMac, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, Response response) {
+                log("--disconnect device success ");
+                callback.run(true, "ok");
+            }
+
+            @Override
+            public void onFailure(String msg) {
+                log("--disconnect device fail " + msg);
+                callback.run(false, msg);
+            }
+        });
+    }
+
+    /**
+     * 发现设备的服务
+     *
+     * @param mac      设备的mac地址
+     * @param callback
+     */
+    public void discoverServices(String mac, final Callback<String> callback) {
+        HttpUtils.getInstance().discoverServices(mac, hubMac, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, final Response response) {
+                log("--discoverServices success ");
+                formatResponse(response, callback);
+            }
+
+            @Override
+            public void onFailure(String msg) {
+                log("--discoverServices fail " + msg);
+                callback.run(false, msg);
+            }
+        });
+    }
+
+    /**
+     * 开始扫描
+     *
+     * @param milliseconds 扫描时间 如果milliseconds == -1 表示不停止扫描
+     * @param callback
+     */
+    public void scan(final int milliseconds, final Callback<String> callback) {
+        if (milliseconds != -1) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    log("postDelayed stop scan...");
+                    stopScan();
+                }
+            }, milliseconds);
+        }
+
+        HttpUtils.getInstance().scan(hubMac, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, Response response) {
+                scanCall = call;
+                formatResponse(response, callback);
+                log("service start scan...");
+
+
+            }
+
+            @Override
+            protected void onFailure(String msg) {
+                callback.run(false, msg);
+            }
+        });
+
 
     }
 
-    public void getNotification(HttpUtils.OkHttpCallback callback) {
-        HttpUtils.getInstance().getNotification(callback);
+    /**
+     * 停止扫描
+     */
+    public void stopScan() {
+        HttpUtils.getInstance().removeRequest(scanCall);
+    }
+
+    /**
+     * 获取通知
+     *
+     * @param callback
+     */
+    public void getNotification(final Callback<String> callback) {
+        HttpUtils.getInstance().getNotification(hubMac, new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, Response response) {
+                notificationCall = call;
+                formatResponse(response, callback);
+            }
+
+            @Override
+            protected void onFailure(String msg) {
+                callback.run(false, msg);
+            }
+        });
 
     }
 
@@ -129,17 +265,56 @@ public class Indicator {
      * 关闭接收通知
      */
     public void closeNotification() {
-        HttpUtils.getInstance().removeRequest();
+        HttpUtils.getInstance().removeRequest(notificationCall);
 
     }
+
 
     /**
      * 重启HUB
      *
-     * @param callback {"ok":重启成功;"err:错误信息":重启失败}
+     * @param callback
      */
-    public void rebootHub(Callback<String> callback) {
-        SDKService.getInstance().rebootHub(callback);
+    public void rebootHub(final Callback<String> callback) {
+        HttpUtils.getInstance().rebootHub(new OkHttpCallback() {
+            @Override
+            protected void onSuccess(Call call, Response response) {
+                callback.run(true, "ok");
+            }
+
+            @Override
+            protected void onFailure(String msg) {
+                callback.run(false, msg);
+            }
+        });
+    }
+
+    private void formatResponse(final Response response, final Callback<String> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Reader charStream = response.body().charStream();
+                BufferedReader in = new BufferedReader(charStream);
+                String line;
+                try {
+                    while ((line = in.readLine()) != null) {
+                        callback.run(true, line);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    callback.run(false, e.getMessage());
+                }
+            }
+        }).start();
+    }
+
+    public interface Callback<T> {
+        /**
+         * @param success true:success;false:fail
+         * @param msg     返回的消息
+         */
+        void run(boolean success, T msg);
     }
 
     /**
@@ -156,5 +331,4 @@ public class Indicator {
             Log.d(TAG, message);
         }
     }
-
 }

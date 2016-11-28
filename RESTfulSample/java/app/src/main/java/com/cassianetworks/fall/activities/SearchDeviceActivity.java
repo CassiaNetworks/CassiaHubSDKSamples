@@ -13,8 +13,7 @@ import com.cassianetworks.fall.R;
 import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.fall.domain.DeviceHandle;
 import com.cassianetworks.fall.views.MyListView;
-import com.cassianetworks.sdklibrary.Callback;
-import com.cassianetworks.sdklibrary.HttpUtils;
+import com.cassianetworks.sdklibrary.Indicator;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -22,14 +21,10 @@ import org.xutils.common.util.LogUtil;
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.ViewInject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import okhttp3.Response;
-
+import static android.R.attr.value;
 import static com.cassianetworks.fall.BaseApplication.deviceManager;
 import static com.cassianetworks.fall.BaseApplication.indicator;
 
@@ -49,47 +44,74 @@ public class SearchDeviceActivity extends BaseActivity {
         lvScanResult.setAdapter(adapter);
         deviceManager.clearScanDevList();
         showLoading();
-        indicator.scan(10000, new HttpUtils.OkHttpCallback() {
+        indicator.scan(10000, new Indicator.Callback<String>() {
             @Override
-            protected void onSuccess(final Response response) {
+            public void run(boolean success, String msg) {
                 dismissLoading();
+                if (success) {
+                    if (msg.contains("CassiaFD_1.2") || TextUtils.isEmpty("CassiaFD_1.2")) {
 
-                Reader charStream = response.body().charStream();
-                BufferedReader in = new BufferedReader(charStream);
-                String line;
-
-                try {
-                    while ((line = in.readLine()) != null) {
-                        if (line.contains("CassiaFD_1.2") || TextUtils.isEmpty("CassiaFD_1.2")) {
-
-                            HashMap result = new Gson().fromJson(line.split("data:")[1], HashMap.class);
-                            LinkedTreeMap bdaddrs = (LinkedTreeMap) ((ArrayList) result.get("bdaddrs")).get(0);
-                            final String bdaddr = (String) bdaddrs.get("bdaddr");
-                            final String scanData = (String) result.get("scanData");
-                            final String name = (String) result.get("name");
-                            final double rssi = (double) result.get("rssi");
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    device = new Device(name, bdaddr, rssi, scanData);
-                                    deviceManager.addScanDevice(device);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-                        }
+                        HashMap result = new Gson().fromJson(msg.split("data:")[1], HashMap.class);
+                        LinkedTreeMap bdaddrs = (LinkedTreeMap) ((ArrayList) result.get("bdaddrs")).get(0);
+                        final String bdaddr = (String) bdaddrs.get("bdaddr");
+                        final String scanData = (String) result.get("scanData");
+                        final String name = (String) result.get("name");
+                        final double rssi = (double) result.get("rssi");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                device = new Device(name, bdaddr, rssi, scanData);
+                                deviceManager.addScanDevice(device);
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } else {
+                    LogUtil.d("scan fail.err" + msg);
                 }
-
-            }
-
-            @Override
-            protected void onFailure(String msg) {
-                dismissLoading();
-                LogUtil.d("scan fail.err" + msg);
             }
         });
+//        indicator.scan(10000, new HttpUtils.OkHttpCallback() {
+//            @Override
+//            protected void onSuccess(final Response response) {
+//                dismissLoading();
+//
+//                Reader charStream = response.body().charStream();
+//                BufferedReader in = new BufferedReader(charStream);
+//                String line;
+//
+//                try {
+//                    while ((line = in.readLine()) != null) {
+//                        if (line.contains("CassiaFD_1.2") || TextUtils.isEmpty("CassiaFD_1.2")) {
+//
+//                            HashMap result = new Gson().fromJson(line.split("data:")[1], HashMap.class);
+//                            LinkedTreeMap bdaddrs = (LinkedTreeMap) ((ArrayList) result.get("bdaddrs")).get(0);
+//                            final String bdaddr = (String) bdaddrs.get("bdaddr");
+//                            final String scanData = (String) result.get("scanData");
+//                            final String name = (String) result.get("name");
+//                            final double rssi = (double) result.get("rssi");
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    device = new Device(name, bdaddr, rssi, scanData);
+//                                    deviceManager.addScanDevice(device);
+//                                    adapter.notifyDataSetChanged();
+//                                }
+//                            });
+//                        }
+//                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//
+//            @Override
+//            protected void onFailure(String msg) {
+//                dismissLoading();
+//                LogUtil.d("scan fail.err" + msg);
+//            }
+//        });
     }
 
 
@@ -144,15 +166,15 @@ public class SearchDeviceActivity extends BaseActivity {
 
                     showLoading();
                     ivAdd.setSelected(true);
-                    indicator.connect(mac, new Callback<String>() {
+                    indicator.connect(mac, new Indicator.Callback<String>() {
                         @Override
-                        public void run(String value) {
-                            LogUtil.d("connect device value" + value);
-                            if (value.equals("ok")) getDeviceServices(mac, device);
+                        public void run(boolean success, String msg) {
+                            LogUtil.d("connect device value" + msg);
+                            if (success) getDeviceServices(mac, device);
                             else {
                                 dismissLoading();
                                 LogUtil.d("connect device fail " + value);
-                                showTips(value);
+                                showTips(msg);
                                 ivAdd.setSelected(false);
                             }
                         }
@@ -168,11 +190,11 @@ public class SearchDeviceActivity extends BaseActivity {
     }
 
     private void getDeviceServices(String mac, final Device device) {
-        indicator.discoverServices(mac, new Callback<String>() {
+        indicator.discoverServices(mac, new Indicator.Callback<String>() {
             @Override
-            public void run(String value) {
+            public void run(boolean success,String value) {
                 dismissLoading();
-                if (!TextUtils.isEmpty(value)) {
+                if (success) {
                     //发现服务成功
                     LogUtil.d("test discover service data " + value);
                     HashMap ret = new Gson().fromJson(value, HashMap.class);

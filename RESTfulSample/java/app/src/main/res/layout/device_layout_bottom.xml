@@ -14,7 +14,7 @@
         android:id="@+id/tv_battery"
         style="@style/device_layout_text"
         android:gravity="center"
-        android:text="电量" />
+        android:text="重连" />
 
     <TextView
         android:id="@+id/tv_del"

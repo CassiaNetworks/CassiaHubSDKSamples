@@ -2,7 +2,6 @@ package com.cassianetworks.fall.activities;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import com.cassianetworks.fall.domain.Device;
 import com.cassianetworks.fall.domain.DeviceHandle;
 import com.cassianetworks.fall.utils.DialogUtils;
 import com.cassianetworks.fall.views.MyListView;
-import com.cassianetworks.sdklibrary.Callback;
+import com.cassianetworks.sdklibrary.Indicator;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -50,9 +49,12 @@ public class DeviceActivity extends BaseActivity {
     private String deviceBdaddr;
     private HandleAdapter adapter;
 
-    @Event(value = {R.id.iv_left, R.id.iv_right, R.id.tv_del, R.id.tv_record, R.id.tv_service})
+    @Event(value = {R.id.tv_battery, R.id.iv_left, R.id.iv_right, R.id.tv_del, R.id.tv_record, R.id.tv_service})
     private void getEvent(View v) {
         switch (v.getId()) {
+            case R.id.tv_battery:
+                connect();
+                break;
             case R.id.iv_left:
                 finish();
                 break;
@@ -64,11 +66,10 @@ public class DeviceActivity extends BaseActivity {
                     @Override
                     public void run() {
                         showLoading();
-                        indicator.disconnect(deviceBdaddr, new Callback<String>() {
+                        indicator.disconnect(deviceBdaddr, new Indicator.Callback<String>() {
                             @Override
-                            public void run(String value) {
-                                dismissLoading();
-                                if (value.equals("ok")) {
+                            public void run(boolean success, String msg) {
+                                if (success) {
                                     LogUtil.d("disconnect device success");
                                     deviceManager.delDevice(device);
                                     if (MainActivity.instance != null)
@@ -76,8 +77,8 @@ public class DeviceActivity extends BaseActivity {
                                     startActivity(MainActivity.class);
                                     finish();
                                 } else {
-                                    LogUtil.d("disconnect device fail" + value);
-                                    showTips(value);
+                                    LogUtil.d("disconnect device fail" + msg);
+                                    showTips(msg);
 
                                 }
                             }
@@ -96,6 +97,23 @@ public class DeviceActivity extends BaseActivity {
             default:
                 break;
         }
+    }
+
+    private void connect() {
+        showLoading();
+        indicator.connect(deviceBdaddr, new Indicator.Callback<String>() {
+            @Override
+            public void run(boolean success, String msg) {
+                LogUtil.d("connect device value" + msg);
+                if (success) getDeviceServices();
+                else {
+                    dismissLoading();
+                    LogUtil.d("connect device fail " + msg);
+                    showTips(msg);
+
+                }
+            }
+        });
     }
 
     /**
@@ -122,7 +140,6 @@ public class DeviceActivity extends BaseActivity {
             tvService.setVisibility(View.GONE);
         }
         tvMac.setText(deviceBdaddr);
-        tvBattery.setText("电量高");
         adapter = new HandleAdapter();
         lv_device_handle.setAdapter(adapter);
         //将当前item的handle设置为输入框的美瞳
@@ -130,11 +147,11 @@ public class DeviceActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                indicator.writeHandle(device.getBdaddr(), adapter.getItem(position).handle, etValue.getText().toString().trim(), new Callback<String>() {
+                indicator.writeHandle(device.getBdaddr(), adapter.getItem(position).handle, etValue.getText().toString().trim(), new Indicator.Callback<String>() {
                     @Override
-                    public void run(String value) {
-                        LogUtil.d("writeHandle value" + value);
-                        showTips(value);
+                    public void run(boolean success, String msg) {
+                        LogUtil.d("writeHandle value" + msg);
+                        showTips(msg);
                     }
                 });
 
@@ -204,11 +221,11 @@ public class DeviceActivity extends BaseActivity {
         showLoading();
         final Device temDev = new Device(device.getName(), device.getBdaddr());
 
-        indicator.discoverServices(device.getBdaddr(), new Callback<String>() {
+        indicator.discoverServices(device.getBdaddr(), new Indicator.Callback<String>() {
             @Override
-            public void run(String value) {
+            public void run(boolean success, String value) {
                 dismissLoading();
-                if (!TextUtils.isEmpty(value)) {
+                if (success) {
                     LogUtil.d("test discover service data " + value);
                     HashMap ret = new Gson().fromJson(value, HashMap.class);
                     ArrayList services = (ArrayList) ret.get("services");

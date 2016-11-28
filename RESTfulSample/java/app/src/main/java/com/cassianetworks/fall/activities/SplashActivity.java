@@ -4,14 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 
 import com.cassianetworks.fall.BaseActivity;
-import com.cassianetworks.fall.BaseApplication;
 import com.cassianetworks.fall.IndicatorService;
 import com.cassianetworks.fall.R;
 import com.cassianetworks.fall.domain.Device;
-import com.cassianetworks.sdklibrary.Callback;
+import com.cassianetworks.sdklibrary.Indicator;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -52,16 +50,15 @@ public class SplashActivity extends BaseActivity {
             devList.addAll(devices);
         showLoading();
 
-        indicator.oauth("tester", "10b83f9a2e823c47", new Callback<String>() {
+        indicator.oauth("tester", "10b83f9a2e823c47", new Indicator.Callback<String>() {
             @Override
-            public void run(String value) {
-                LogUtil.d(" oauth " + value);
-                if (value.equals("ok")) {
+            public void run(boolean success, String msg) {
+                LogUtil.d(" oauth " + msg);
+                if (success) {
                     LogUtil.d("oauth success");
                     getConnectList();
-
                 } else {
-                    showTips(value);
+                    showTips(msg);
                 }
             }
         });
@@ -75,16 +72,12 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void getConnectList() {
-        indicator.connectList(new Callback<String>() {
+        indicator.connectList(new Indicator.Callback<String>() {
             @Override
-            public void run(String value) {
-                dismissLoading();
-                if (value.contains("err:")) {
-                    LogUtil.d("connectList fail"+value);
-                    handler.sendEmptyMessageDelayed(deviceManager.getDevList().size(), 2 * 1000);
-                } else {
-                    LogUtil.d("connectList success value = " + value);
-                    HashMap ret = new Gson().fromJson(value, HashMap.class);
+            public void run(boolean success, String msg) {
+                if (success) {
+                    LogUtil.d("connectList success value = " + msg);
+                    HashMap ret = new Gson().fromJson(msg, HashMap.class);
                     ArrayList nodes = (ArrayList) ret.get("nodes");
                     for (int i = 0; i < nodes.size(); i++) {
                         LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) nodes.get(i);
@@ -110,8 +103,9 @@ public class SplashActivity extends BaseActivity {
 
                     }
                     handler.sendEmptyMessageDelayed(deviceManager.getDevList().size(), 2 * 1000);
-
-
+                } else {
+                    LogUtil.d("connectList fail" + msg);
+                    handler.sendEmptyMessageDelayed(deviceManager.getDevList().size(), 2 * 1000);
                 }
             }
         });

@@ -7,6 +7,7 @@ import android.os.Looper;
 
 import com.cassianetworks.sdklibrary.Indicator;
 
+import org.xutils.common.util.LogUtil;
 import org.xutils.x;
 
 public class BaseApplication extends Application {
@@ -28,12 +29,13 @@ public class BaseApplication extends Application {
 
         application = this;
         deviceManager = DeviceManager.getInstance(this);
-        indicator = new Indicator( HUB_MAC);
-        indicator.setDebug(true);
-//        indicator.startService();
-
-//        scanIntent = new Intent(this, ScanService.class);
-//        startService(scanIntent);
+        try {
+            indicator = new Indicator(HUB_MAC);
+            indicator.setDebug(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.d("indicator init err " + e.getMessage());
+        }
 
     }
 
