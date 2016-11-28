@@ -101,19 +101,24 @@ public class DeviceActivity extends BaseActivity {
 
     private void connect() {
         showLoading();
-        indicator.connect(deviceBdaddr, new Indicator.Callback<String>() {
-            @Override
-            public void run(boolean success, String msg) {
-                LogUtil.d("connect device value" + msg);
-                if (success) getDeviceServices();
-                else {
-                    dismissLoading();
-                    LogUtil.d("connect device fail " + msg);
-                    showTips(msg);
+        try {
+            indicator.connect(Indicator.CONNECT_TYPE_PUBLIC, deviceBdaddr, new Indicator.Callback<String>() {
+                @Override
+                public void run(boolean success, String msg) {
+                    LogUtil.d("connect device value" + msg);
+                    if (success) getDeviceServices();
+                    else {
+                        dismissLoading();
+                        LogUtil.d("connect device fail " + msg);
+                        showTips(msg);
 
+                    }
                 }
-            }
-        });
+            });
+        } catch (Exception e) {
+            LogUtil.d("connect device value" + e.getMessage());
+            showTips(e.getMessage());
+        }
     }
 
     /**
@@ -142,6 +147,7 @@ public class DeviceActivity extends BaseActivity {
         tvMac.setText(deviceBdaddr);
         adapter = new HandleAdapter();
         lv_device_handle.setAdapter(adapter);
+
         //将当前item的handle设置为输入框的美瞳
         lv_device_handle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

@@ -166,19 +166,25 @@ public class SearchDeviceActivity extends BaseActivity {
 
                     showLoading();
                     ivAdd.setSelected(true);
-                    indicator.connect(mac, new Indicator.Callback<String>() {
-                        @Override
-                        public void run(boolean success, String msg) {
-                            LogUtil.d("connect device value" + msg);
-                            if (success) getDeviceServices(mac, device);
-                            else {
-                                dismissLoading();
-                                LogUtil.d("connect device fail " + value);
-                                showTips(msg);
-                                ivAdd.setSelected(false);
+                    try {
+                        indicator.connect(Indicator.CONNECT_TYPE_PUBLIC, mac, new Indicator.Callback<String>() {
+                            @Override
+                            public void run(boolean success, String msg) {
+                                LogUtil.d("connect device value" + msg);
+                                if (success) getDeviceServices(mac, device);
+                                else {
+                                    dismissLoading();
+                                    LogUtil.d("connect device fail " + value);
+                                    showTips(msg);
+                                    ivAdd.setSelected(false);
+                                }
                             }
-                        }
-                    });
+                        });
+                    } catch (Exception e) {
+                        LogUtil.d("connect device value" + e.getMessage());
+                        showTips(e.getMessage());
+
+                    }
 
 
                 }
@@ -192,7 +198,7 @@ public class SearchDeviceActivity extends BaseActivity {
     private void getDeviceServices(String mac, final Device device) {
         indicator.discoverServices(mac, new Indicator.Callback<String>() {
             @Override
-            public void run(boolean success,String value) {
+            public void run(boolean success, String value) {
                 dismissLoading();
                 if (success) {
                     //发现服务成功

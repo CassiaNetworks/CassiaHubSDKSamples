@@ -88,9 +88,10 @@ public class IndicatorService extends Service {
             @Override
             public void run(boolean success, String msg) {
                 if (success) {
-                    LogUtil.e("get Notification success" + msg);
+
                     if ("".equals(msg) || msg.contains("keep-alive") || msg.contains("retry"))
                         return;
+                    LogUtil.e("get Notification success" + msg);
                     HashMap result = new Gson().fromJson(msg.split("data:")[1], HashMap.class);
                     final String value = (String) result.get("value");
                     final String name = (String) result.get("name");
@@ -127,62 +128,6 @@ public class IndicatorService extends Service {
                 }
             }
         });
-//        indicator.getNotification(new HttpUtils.OkHttpCallback() {
-//            @Override
-//            protected void onSuccess(Response response) {
-//                LogUtil.e("get Notification success");
-//                Reader charStream = response.body().charStream();
-//                BufferedReader in = new BufferedReader(charStream);
-//                String line;
-//
-//                try {
-//                    while ((line = in.readLine()) != null) {
-//                        if ("".equals(line) || line.contains("keep-alive") || line.contains("retry"))
-//                            continue;
-//                        HashMap result = new Gson().fromJson(line.split("data:")[1], HashMap.class);
-//                        final String value = (String) result.get("value");
-//                        final String name = (String) result.get("name");
-//                        final String dataType = (String) result.get("dataType");
-//                        final String id = (String) result.get("id");
-//                        Device tem = new Device(name, id);
-//                        if (!deviceManager.getDevList().contains(tem))
-//                            continue;
-//                        int handle = ((Double) result.get("handle")).intValue();
-//
-//                        List<Record> records = BaseApplication.deviceManager.loadRecordListPref(id);
-//                        String time = SysUtils.getCurData();
-//
-//                        if (records == null) {
-//                            records = new ArrayList<>();
-//                            records.add(new Record(0, value, name, dataType, id, handle, time.split(" ")[0] + " 23:59:59"));
-//                            broadcast(id, records);
-//                        }
-//                        if (records.size() > 1) {
-//                            if (!records.get(records.size() - 1).getTime().split(" ")[0].equals(time.split(" ")[0])) {
-//                                records.add(new Record(0, value, name, dataType, id, handle, time.split(" ")[0] + " 23:59:59"));
-//                                broadcast(id, records);
-//                            }
-//
-//                        }
-//
-//                        if (!records.get(records.size() - 1).getValue().equals(value)) {
-//                            records.add(new Record(1, value, name, dataType, id, handle, time));
-//                            broadcast(id, records);
-//                        }
-//
-//
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//
-//            @Override
-//            protected void onFailure(String msg) {
-//                LogUtil.e("get Notification fail" + msg);
-//            }
-//        });
     }
 
     private void broadcast(String id, List<Record> records) {

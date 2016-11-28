@@ -15,18 +15,21 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 public class Indicator {
-
+    public static final String CONNECT_TYPE_PUBLIC = "public";
+    public static final String CONNECT_TYPE_RANDOM = "random";
     private static boolean debug = true;
     private final static String TAG = "CassiaIndicator";
-    private String hubMac = "";
+    //    private String hubMac = "";
     private Call scanCall = null;
     private Call notificationCall = null;
+    private HttpUtils utils;
 
     public Indicator(String hubMac) throws Exception {
         if (hubMac == null || "".equals(hubMac)) {
             throw new Exception("hub mac is invalid");
         }
-        this.hubMac = hubMac;
+
+        utils = new HttpUtils(hubMac);
 
     }
 
@@ -38,7 +41,7 @@ public class Indicator {
      * @param callback
      */
     public void oauth(String developer, String pwd, final Callback<String> callback) {
-        HttpUtils.getInstance().oauth(developer, pwd, new OkHttpCallback() {
+        utils.oauth(developer, pwd, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 formatResponse(response, callback);
@@ -48,7 +51,7 @@ public class Indicator {
                 try {
                     while ((line = in.readLine()) != null) {
                         HashMap result = new Gson().fromJson(line, HashMap.class);
-                        HttpUtils.getInstance().setAccess_token((String) result.get("access_token"));
+                        utils.setAccess_token((String) result.get("access_token"));
                         callback.run(true, "ok");
                     }
                 } catch (Exception e) {
@@ -67,12 +70,16 @@ public class Indicator {
     /**
      * 连接设备
      *
+     * @param type     连接的类型 CONNECT_TYPE_PUBLIC/CONNECT_TYPE_RANDOM
      * @param mac      设备的MAC地址
      * @param chip     HUB的芯片 {0,1}
      * @param callback
      */
-    public void connect(String mac, String chip, final Callback<String> callback) {
-        HttpUtils.getInstance().connect(mac, chip, hubMac, new OkHttpCallback() {
+    public void connect(String type, String mac, String chip, final Callback<String> callback) throws Exception {
+        if (!CONNECT_TYPE_PUBLIC.equals(type) || !CONNECT_TYPE_RANDOM.equals(type)) {
+            throw new Exception("type is invalid");
+        }
+        utils.connect(type, mac, chip, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 log("--connect success ");
@@ -90,11 +97,12 @@ public class Indicator {
     /**
      * 在芯片1上连接设备
      *
+     * @param type     连接的类型 CONNECT_TYPE_PUBLIC/CONNECT_TYPE_RANDOM
      * @param mac      设备的MAC地址
      * @param callback
      */
-    public void connect(String mac, final Callback<String> callback) {
-        connect(mac, "1", callback);
+    public void connect(String type, String mac, final Callback<String> callback) throws Exception {
+        connect(type, mac, "1", callback);
     }
 
     /**
@@ -106,7 +114,7 @@ public class Indicator {
      * @param callback
      */
     public void writeHandle(String mac, int handle, String value, final Callback<String> callback) {
-        HttpUtils.getInstance().writeHandle(mac, handle, value, hubMac, new OkHttpCallback() {
+        utils.writeHandle(mac, handle, value, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 log("--writeHandle success ");
@@ -128,7 +136,7 @@ public class Indicator {
      * @param callback
      */
     public void connectList(String connection_state, final Callback<String> callback) {
-        HttpUtils.getInstance().connectList(connection_state, hubMac, new OkHttpCallback() {
+        utils.connectList(connection_state, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, final Response response) {
                 log("--connectList success ");
@@ -160,7 +168,7 @@ public class Indicator {
      */
 
     public void disconnect(String mac, final Callback<String> callback) {
-        HttpUtils.getInstance().disconnect(mac, hubMac, new OkHttpCallback() {
+        utils.disconnect(mac, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 log("--disconnect device success ");
@@ -182,7 +190,7 @@ public class Indicator {
      * @param callback
      */
     public void discoverServices(String mac, final Callback<String> callback) {
-        HttpUtils.getInstance().discoverServices(mac, hubMac, new OkHttpCallback() {
+        utils.discoverServices(mac, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, final Response response) {
                 log("--discoverServices success ");
@@ -198,12 +206,25 @@ public class Indicator {
     }
 
     /**
-     * 开始扫描
+     * 在芯片1上开始扫描
      *
      * @param milliseconds 扫描时间 如果milliseconds == -1 表示不停止扫描
      * @param callback
      */
     public void scan(final int milliseconds, final Callback<String> callback) {
+        scan(milliseconds, "1", callback);
+
+
+    }
+
+    /**
+     * 在指定芯片上开始扫描
+     *
+     * @param milliseconds 扫描时间 如果milliseconds == -1 表示不停止扫描
+     * @param chip         芯片id
+     * @param callback
+     */
+    public void scan(final int milliseconds, String chip, final Callback<String> callback) {
         if (milliseconds != -1) {
             new Timer().schedule(new TimerTask() {
                 @Override
@@ -214,14 +235,12 @@ public class Indicator {
             }, milliseconds);
         }
 
-        HttpUtils.getInstance().scan(hubMac, new OkHttpCallback() {
+        utils.scan(chip, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 scanCall = call;
                 formatResponse(response, callback);
                 log("service start scan...");
-
-
             }
 
             @Override
@@ -237,7 +256,7 @@ public class Indicator {
      * 停止扫描
      */
     public void stopScan() {
-        HttpUtils.getInstance().removeRequest(scanCall);
+        utils.removeRequest(scanCall);
     }
 
     /**
@@ -246,7 +265,7 @@ public class Indicator {
      * @param callback
      */
     public void getNotification(final Callback<String> callback) {
-        HttpUtils.getInstance().getNotification(hubMac, new OkHttpCallback() {
+        utils.getNotification(new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 notificationCall = call;
@@ -265,7 +284,7 @@ public class Indicator {
      * 关闭接收通知
      */
     public void closeNotification() {
-        HttpUtils.getInstance().removeRequest(notificationCall);
+        utils.removeRequest(notificationCall);
 
     }
 
@@ -276,7 +295,7 @@ public class Indicator {
      * @param callback
      */
     public void rebootHub(final Callback<String> callback) {
-        HttpUtils.getInstance().rebootHub(new OkHttpCallback() {
+        utils.rebootHub(new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 callback.run(true, "ok");

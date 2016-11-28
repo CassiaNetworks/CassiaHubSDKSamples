@@ -51,8 +51,7 @@ public class RecordActivity extends BaseActivity {
         adapter = new RecordAdapter(this);
         lvRecord.setAdapter(adapter);
         getData();
-        adapter.refreshData(recordsData);
-        adapter.notifyDataSetChanged();
+
         observer = new Observer() {
             @Override
             public void update(Observable observable, final Object data) {
@@ -122,6 +121,13 @@ public class RecordActivity extends BaseActivity {
                 recordsData = deviceManager.loadRecordListPref(deviceMac);
                 if (recordsData == null) recordsData = new ArrayList<>();
                 Collections.sort(recordsData, comparator);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.refreshData(recordsData);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
             }
         }).start();
 
