@@ -22,7 +22,7 @@ import static com.cassianetworks.sdklibrary.Indicator.log;
 
 public class HttpUtils {
 
-    private String hubMac = "";
+
     private String root = "http://api.cassianetworks.com/";
     private final int TIMEOUT = 30;
 
@@ -36,10 +36,16 @@ public class HttpUtils {
 
     private String access_token;
 
-    public HttpUtils(String hubMac) {
-        this.hubMac = hubMac;
+    private static final HttpUtils INSTANCE = new HttpUtils();
+
+
+    public static HttpUtils getInstance() {
+        return INSTANCE;
     }
 
+    private HttpUtils() {
+
+    }
 
     private OkHttpClient client = new OkHttpClient().newBuilder()
             .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
@@ -82,7 +88,7 @@ public class HttpUtils {
 
     }
 
-    public void scan(String chip, OkHttpCallback callback) {
+    public void scan(String hubMac, String chip, OkHttpCallback callback) {
         Map<String, String> map = new HashMap<>();
         map.put("mac", hubMac);
         map.put("event", "1");
@@ -90,32 +96,32 @@ public class HttpUtils {
         get(root + "gap/nodes/", map, callback);
     }
 
-    public void connect(String type, String mac, String chip, OkHttpCallback callback) {
+    public void connect(String hubMac, String type, String mac, String chip, OkHttpCallback callback) {
         Map<String, Object> map = new HashMap<>();
         map.put("type", type);
         jsonPost(root + "gap/nodes/" + mac + "/connection?mac=" + hubMac + "&chip=" + chip, map, callback);
     }
 
-    public void connectList(String connection_state, OkHttpCallback callback) {
+    public void connectList(String hubMac, String connection_state, OkHttpCallback callback) {
         Map<String, String> map = new HashMap<>();
         map.put("mac", hubMac);
         map.put("connection_state", connection_state);
         get(root + "gap/nodes/", map, callback);
     }
 
-    public void disconnect(String mac, OkHttpCallback callback) {
+    public void disconnect(String hubMac, String mac, OkHttpCallback callback) {
         delete(root + "gap/nodes/" + mac + "/connection?mac=" + hubMac, callback);
     }
 
-    public void discoverServices(String mac, OkHttpCallback callback) {
+    public void discoverServices(String hubMac, String mac, OkHttpCallback callback) {
         get(root + "gatt/nodes/" + mac + "/services/characteristics/descriptors?mac=" + hubMac + "&all=1", null, callback);
     }
 
-    public void writeHandle(String mac, int handle, String value, OkHttpCallback callback) {
+    public void writeHandle(String hubMac, String mac, int handle, String value, OkHttpCallback callback) {
         get(root + "gatt/nodes/" + mac + "/handle/" + handle + "/value/" + value + "/?mac=" + hubMac, null, callback);
     }
 
-    public void getNotification(OkHttpCallback callback) {
+    public void getNotification(String hubMac, OkHttpCallback callback) {
         Map<String, String> map = new HashMap<>();
         map.put("mac", hubMac);
         map.put("event", "1");

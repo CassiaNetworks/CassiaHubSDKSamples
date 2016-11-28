@@ -19,17 +19,15 @@ public class Indicator {
     public static final String CONNECT_TYPE_RANDOM = "random";
     private static boolean debug = true;
     private final static String TAG = "CassiaIndicator";
-    //    private String hubMac = "";
     private Call scanCall = null;
     private Call notificationCall = null;
-    private HttpUtils utils;
+    private String hubMac = "";
 
     public Indicator(String hubMac) throws Exception {
         if (hubMac == null || "".equals(hubMac)) {
             throw new Exception("hub mac is invalid");
         }
-
-        utils = new HttpUtils(hubMac);
+        this.hubMac = hubMac;
 
     }
 
@@ -41,7 +39,7 @@ public class Indicator {
      * @param callback
      */
     public void oauth(String developer, String pwd, final Callback<String> callback) {
-        utils.oauth(developer, pwd, new OkHttpCallback() {
+        HttpUtils.getInstance().oauth(developer, pwd, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 formatResponse(response, callback);
@@ -51,7 +49,7 @@ public class Indicator {
                 try {
                     while ((line = in.readLine()) != null) {
                         HashMap result = new Gson().fromJson(line, HashMap.class);
-                        utils.setAccess_token((String) result.get("access_token"));
+                        HttpUtils.getInstance().setAccess_token((String) result.get("access_token"));
                         callback.run(true, "ok");
                     }
                 } catch (Exception e) {
@@ -79,7 +77,7 @@ public class Indicator {
         if (!CONNECT_TYPE_PUBLIC.equals(type) || !CONNECT_TYPE_RANDOM.equals(type)) {
             throw new Exception("type is invalid");
         }
-        utils.connect(type, mac, chip, new OkHttpCallback() {
+        HttpUtils.getInstance().connect(hubMac,type, mac, chip, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 log("--connect success ");
@@ -114,7 +112,7 @@ public class Indicator {
      * @param callback
      */
     public void writeHandle(String mac, int handle, String value, final Callback<String> callback) {
-        utils.writeHandle(mac, handle, value, new OkHttpCallback() {
+        HttpUtils.getInstance().writeHandle(hubMac,mac, handle, value, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 log("--writeHandle success ");
@@ -136,7 +134,7 @@ public class Indicator {
      * @param callback
      */
     public void connectList(String connection_state, final Callback<String> callback) {
-        utils.connectList(connection_state, new OkHttpCallback() {
+        HttpUtils.getInstance().connectList(hubMac,connection_state, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, final Response response) {
                 log("--connectList success ");
@@ -168,7 +166,7 @@ public class Indicator {
      */
 
     public void disconnect(String mac, final Callback<String> callback) {
-        utils.disconnect(mac, new OkHttpCallback() {
+        HttpUtils.getInstance().disconnect(hubMac,mac, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 log("--disconnect device success ");
@@ -190,7 +188,7 @@ public class Indicator {
      * @param callback
      */
     public void discoverServices(String mac, final Callback<String> callback) {
-        utils.discoverServices(mac, new OkHttpCallback() {
+        HttpUtils.getInstance().discoverServices(hubMac,mac, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, final Response response) {
                 log("--discoverServices success ");
@@ -235,7 +233,7 @@ public class Indicator {
             }, milliseconds);
         }
 
-        utils.scan(chip, new OkHttpCallback() {
+        HttpUtils.getInstance().scan(hubMac,chip, new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 scanCall = call;
@@ -256,7 +254,7 @@ public class Indicator {
      * 停止扫描
      */
     public void stopScan() {
-        utils.removeRequest(scanCall);
+        HttpUtils.getInstance().removeRequest(scanCall);
     }
 
     /**
@@ -265,7 +263,7 @@ public class Indicator {
      * @param callback
      */
     public void getNotification(final Callback<String> callback) {
-        utils.getNotification(new OkHttpCallback() {
+        HttpUtils.getInstance().getNotification(hubMac,new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 notificationCall = call;
@@ -284,7 +282,7 @@ public class Indicator {
      * 关闭接收通知
      */
     public void closeNotification() {
-        utils.removeRequest(notificationCall);
+        HttpUtils.getInstance().removeRequest(notificationCall);
 
     }
 
@@ -295,7 +293,7 @@ public class Indicator {
      * @param callback
      */
     public void rebootHub(final Callback<String> callback) {
-        utils.rebootHub(new OkHttpCallback() {
+        HttpUtils.getInstance().rebootHub(new OkHttpCallback() {
             @Override
             protected void onSuccess(Call call, Response response) {
                 callback.run(true, "ok");
