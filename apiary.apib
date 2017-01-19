@@ -237,7 +237,8 @@ Resources related to cassia hub in the API.
 
 
 ## Connect a device [/gap/nodes/<node>/connection{?mac,chip,type}]
-### Connect a device by the specific mac id. [POST]
+### Connect a device by the specific mac id, please add BODY as data into your POST request [POST]
+
 
 + Parameters
     + node (required, string) ... the node mac id as format :`aa:aa:aa:aa:aa`
@@ -249,12 +250,12 @@ Resources related to cassia hub in the API.
     + Headers
     
             version: 1
-    
+            
     + Body
     
             {
-                "timeOut": ""
-                "type" :"random/public"
+                "timeOut": "",
+                "type" :"public" // There are two kinds of types `public` or `random`, you can get device's type from scan data.
             }
     
      
