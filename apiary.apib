@@ -496,7 +496,86 @@ Resources related to cassia hub in the API.
         
 
 
+## Discover services & characteristics & desciptors [/gatt/nodes/<node>/services/characteristics/descriptors{?mac}]
+### this url will return the whole services & characteristics & desciptorsof the specified device[GET]
 
++ Parameters
+    + node (required, string) ... the node mac id as format :`aa:aa:aa:aa:aa`
+    + mac (optional, string) ... hub mac id as format: `CC:1B:E0:E0:14:90`
+    
+    
++ Request (application/json)
+        
+    + Headers
+    
+            version: 1
+        
+        
++ Response 200 (application/json)
+        
+        "services" :[
+                    
+            {   
+                "startHandle":<startHandle1>,
+                "endHandle":<endHandle1>,
+                "uuid":<uuid1>,
+                "characteristics":[
+                    {
+                        "handle": <handle1-1>,
+                        "uuid": <uuid1-1>,
+                        "properties": <properties1-1>,
+                        valueHandle: <valueHandle1-1>,
+                        descriptors: [
+                                {
+                                    "uuid":<uuid1-1-1>,
+                                    "handle": <handle1-1-1>
+                                },
+                                {
+                                    "uuid":<uuid1-1-2>,
+                                    "handle": <handle1-1-2>
+                                }
+                                ...
+                        
+                        ]
+                    },
+                    {
+                        "handle": <handle1-2>,
+                        "uuid": <uuid1-2>,
+                        "properties": <properties1-2>,
+                        valueHandle: <valueHandle1-2>,
+                        descriptors: [
+                                {
+                                    "uuid":<uuid1-2-1>,
+                                    "handle": <handle1-2-1>
+                                },
+                                {
+                                    "uuid":<uuid1-2-2>,
+                                    "handle": <handle1-2-2>
+                                }
+                                ...
+                        
+                        ]
+                    }
+                
+                ],
+                "primary":true/false
+                    
+            },
+            
+            {
+                "startHandle":<startHandle2>,
+                "endHandle":<endHandle2>,
+                "uuid":<uuid2>,
+                "characteristics":[],
+                "primary":true/false
+
+            }
+            ...
+
+        ]        
+        
+        
+        
 
 ## Get device name [/gap/nodes/<node>/name{?mac}]
 ### Get the name of the device identified by the node [GET]
