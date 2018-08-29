@@ -4,17 +4,17 @@ HOST: http://api.cassianetworks.com/
 # Cassia SDK Manual
 
 
-The Cassia SDK was developed in response to requests from third party developers and device manufacturers to utilize the Bluetooth routing and extended range capabilities of the Cassia AP while using their Native apps and/or Cloud Servers to connect and control upto 22-BLE devices per AP simultaneously. Furthermore, the SDK was designed to be integrated directly into your app/server using a HTTP/HTTPS based communication protocol to provide the ultimate programming language flexibility (e.g. C#, Node.js, Java, etc.).
-The SDK enables you to create Bluetooth applications based on Cassia AP. This Manual helps you learn how to use the Cassia SDK and its associated Services. You can read the Manual from start to finish or use it as a reference.
+The Cassia SDK was developed in response to requests from third party developers and device manufacturers to utilize the Bluetooth routing and extended range capabilities of the Cassia Router while using their Native apps and/or Cloud Servers to connect and control upto 40 Bluetooth LE devices per AP simultaneously. Furthermore, the SDK was designed to be integrated directly into your app/server using a HTTP/HTTPS based communication protocol to provide the ultimate programming language flexibility (e.g. C#, Node.js, Java, etc.).
+The SDK enables you to create Bluetooth applications based on Cassia Router. This manual helps you learn how to use the Cassia SDK and its associated Services. You can read the Manual from start to finish or use it as a reference.
 
 
 
 ## SDK Overview
-Cassia SDK was already integrated into the AP, allowing you to work with components and visual aids to build your application. It provides:
+Cassia SDK was already integrated into the Cassia Router, allowing you to work with components and visual aids to build your application. It provides:
 - Control & connect your sensor.
 - Three modes can be supported: Scanning, Connecting, Broadcasting.
-- Write a data to sensor via Cloud server & AP.
-- Read data as notification/indication events from sensor via Cloud server & AP.
+- Write a data to sensor via Cloud server & Router.
+- Read data as notification/indication events from sensor via Cloud server & Router.
 - Networks configuration are served as platform to adapt flexible environments.
 - Make remote procedure calls (RPCs) from servers to clients.
 
@@ -31,31 +31,24 @@ You should now be equipped with the knowledge you need to start using it:
 
 ## Getting Start
 
-### 1. Connect your Cassia AP
-Use the cable connect Cassia AP to Router. At inital, Internet access in your environment is required.
+### 1. Connect your Cassia Router
+Use the cable connect Cassia Router to WIFI Router. At inital, Internet access in your environment is required.
 WIFI is supported also, you can use [API](#reference/apis/configuration) for setup it.
 
-### 2. Discover Cassia AP
-All of services are based IP address, So Let's take a quick look at this section.
+### 2. Discover Cassia Router
+In AC mode, all of services are based MAC address, but in standalone mode, services are based IP address, So Let's take a quick look at this section.
+Currently, Router use DHCP (Dynamic IP address) as a default configuration. In a LAN, You can create an `UDP` client to broadcasting (Send `GET_IP` packet to `255.255.255.255` with port `5555`) for receives Routers IP & MAC address in network.
 
-1. The fast way is find a MAC id on the bottom of Cassia AP, and visit [here](http://api.cassianetworks.com/cassia/hubs/%1) (please replace %1 to MAC) for get an IP address directly. and then you can modify and fix your IP (please see [API](#reference/apis/configuration)).
+### 3. Access Cassia Router directly
+If the IP address (in LAN) has known already, you can access it directly.
+Cassia Router provides a built-in RESTful API to let you manage your Bluetooth device. This allows you to control (scan mode will be support more than 100) & connect (upto 40) sensors within a single Router in your application.
 
-2. Another way is use UDP broadcasting, when AP is running, it's will listsen UDP port `34952`, You can broadcast `CASSIA_HUB_DISCOVERY` to this address `255.255.255.255` for discovery Cassia AP. and then 
-AP will feedback as format `ip-port-mac`, And you can use IP for access to Cassia AP.
-NOTE: If you use UDP broadcasting, the Discovery application should be stay in one LAN with Cassia AP which can be discoveried.
-
-Currently, AP use DHCP (Dynamic IP address) as a default configuration. In some of cases, UDP broadcasting will be a good choose.
-
-### 3. Access Cassia AP directly
-If the IP address (in LAN)  has known already, you can access it directly.
-Cassia AP provides a built-in RESTful API to let you manage your Bluetooth device. This allows you to control (scan mode will be support more than 22) & connect (upto 22) sensors within a single AP in your application.
-
-### 4. Access Cassia AP from Cloud
+### 4. Access Cassia Router from Cloud
 - Request a developer account from Cassia associate.
-- Access http://{Your-Cassia-AP-IP}/ (eg. http://192.168.1.8) you can get a entry page of AP.
-- Setup your developer account and cloud server address(default is api.cassianetworks.com) in `Remote Control` section
+- Access http://{Your-Cassia-Router-IP}/ (eg. http://192.168.1.8) you can get a entry page of Router.
+- Setup your developer account and cloud server address(default is your AC address) in `Remote Control` section
 - Do an OAuth2.0 authentication with cloud server with client credentials grant https://tools.ietf.org/html/rfc6749#section-4.4
-- You can use RESTful API access your Cassia AP now append an extra parameter `mac=<Cassia-AP-MAC>`
+- You can use RESTful API access your Cassia Router now append an extra parameter `mac=<Cassia-Router-MAC>`
 
 for example:
   you get a developer account with name: tester, secret: 10b83f9a2e823c47, use base64 encode string "tester:10b83f9a2e823c47", get string "dGVzdGVyOjEwYjgzZjlhMmU4MjNjNDc="
@@ -83,13 +76,13 @@ Pragma: no-cache
 
   now you can use access_token access other apis,
   
-  add access_token in url parameters like: http://api.cassianetworks.com/gap/nodes/?event=1&mac=xxx&access_token=xxxxx
+  add access_token in url parameters like: http://your-ac.cassia.pro/gap/nodes/?event=1&mac=xxx&access_token=xxxxx
   
   or you can add access_token in headers "Authorization : Bearer xxxx"
 
 
 ### 5. Configuration
-Please visit http://{Your-Cassia-AP-IP}/ (eg. http://192.168.1.8), you can config this AP (wired/wireless ..) and get some details about Cassia AP.
+Please visit http://{Your-Cassia-Router-IP}/ (eg. http://192.168.1.8), you can config this Router (wired/wireless ..) and get some details about Cassia Router.
 
 
 # Group APIs
